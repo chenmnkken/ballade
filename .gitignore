@@ -3,5 +3,5 @@ node_modules/
 .swap
 .orig
 .cache
-.log
+npm-debug.log
 bundle.js

@@ -2,6 +2,6 @@ node_modules/
 .DS_Store
 .swap
 .orig
-.log
+npm-debug.log
 .cache
 bundle.js

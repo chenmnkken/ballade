@@ -1,0 +1,34 @@
+{
+  "name": "ballade",
+  "version": "0.1.1",
+  "description": "For unidirectional data flow.",
+  "keywords": [
+    "flux",
+    "react",
+    "action",
+    "store",
+    "immutable",
+    "dispatcher"
+  ],
+  "main": "src/ballade.js",
+  "scripts": {
+    "build": "./node_modules/.bin/gulp",
+    "test": "cd test/mutable; ../../node_modules/.bin/mocha index.js; cd ../immutable; ../../node_modules/.bin/mocha index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chenmnkken/ballade"
+  },
+  "bugs": "https://github.com/chenmnkken/ballade/issues",
+  "author": "chenmnkken@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "browserify": "12.0.1",
+    "gulp": "3.9.0",
+    "gulp-uglify": "1.5.1",
+    "immutable": "3.7.6",
+    "mocha": "2.3.4",
+    "vinyl-buffer": "1.0.0",
+    "vinyl-source-stream": "1.1.0"
+  }
+}

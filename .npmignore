@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+.swap
+.orig
+.log
+.cache
+bundle.js

@@ -4,4 +4,5 @@ node_modules/
 .orig
 npm-debug.log
 .cache
+.git
 bundle.js

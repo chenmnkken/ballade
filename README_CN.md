@@ -127,7 +127,7 @@ dispatcher.use(function (payload, next) {
 
 ```js
 dispatcher.use(function (payload, next) {
-    // 可以判断中间件中是否包含 uri 字段来判断是否使用 fetch 来取数据
+    // 可以通过中间件中是否包含 uri 字段来判断是否使用 fetch 来取数据
 	if (payload.uri) {
 	    fetch(payload.uri, payload.options || {}).then(function(response){
 	        return response.json();

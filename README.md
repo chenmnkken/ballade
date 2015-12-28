@@ -6,9 +6,9 @@ Reinterpreted Flux application architecture, for unidirectional data flow in Rea
 
 ## Two version
 
-`dist/ballade.js` by default, Ballade provides `store` is mutable.
+[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) by default, Ballade provides `store` is mutable.
 
-`dist/ballade.immutable.js` it also provides another option, `store` is immutable, need dependence [immutable-js](https://github.com/facebook/immutable-js).
+[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) it also provides another option, `store` is immutable, need dependence [immutable-js](https://github.com/facebook/immutable-js).
 
 ## Install
 

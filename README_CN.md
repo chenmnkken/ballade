@@ -4,9 +4,9 @@
 
 ## 两个版本
 
-`dist/ballade.js` 默认情况下, Ballade 提供的 **Store** 的数据是可变的.
+[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) 默认情况下, Ballade 提供的 **Store** 的数据是可变的.
 
-`dist/ballade.immutable.js` 同时也提供了另一个选择, 提供的 **Store** 的数据是不可变的, 但是需要依赖 [immutable-js](https://github.com/facebook/immutable-js).
+[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) 同时也提供了另一个选择, 提供的 **Store** 的数据是不可变的, 但是需要依赖 [immutable-js](https://github.com/facebook/immutable-js).
 
 ## 安装
 

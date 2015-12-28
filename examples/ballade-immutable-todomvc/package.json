@@ -29,6 +29,6 @@
     "immutable": "3.7.6",
     "react": "0.14.3",
     "react-dom": "0.14.3",
-    "ballade": "0.1.3"
+    "ballade": "0.1.4"
   }
 }

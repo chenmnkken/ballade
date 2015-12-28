@@ -2,9 +2,9 @@
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 0.1.2
+ * Ballade 0.1.4
  * author: chenmnkken@gmail.com
- * date: 2015-12-27
+ * date: 2015-12-28
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -15,7 +15,7 @@ var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
 
 var Ballade = {
-    version: '0.1.2'
+    version: '0.1.4'
 };
 
 /**

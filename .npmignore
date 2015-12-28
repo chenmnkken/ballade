@@ -1,4 +1,6 @@
 node_modules/
+dist/
+examples/
 .DS_Store
 .swap
 .orig

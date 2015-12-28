@@ -1,7 +1,7 @@
 {
   "name": "ballade-mutable-todomvc",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.1",
+  "description": "ballade mutable todomvc example",
   "scripts": {
     "start": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,6 +28,6 @@
   "dependencies": {
     "react": "0.14.3",
     "react-dom": "0.14.3",
-    "ballade": "0.1.0"
+    "ballade": "0.1.3"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "ballade",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "For unidirectional data flow.",
   "keywords": [
     "flux",

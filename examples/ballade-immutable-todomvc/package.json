@@ -1,7 +1,7 @@
 {
-  "name": "ballade-mutable-todomvc",
-  "version": "0.1.0",
-  "description": "",
+  "name": "ballade-immutable-todomvc",
+  "version": "0.1.1",
+  "description": "ballade immutable todomvc example",
   "scripts": {
     "start": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,8 +26,9 @@
     "watchify": "3.6.1"
   },
   "dependencies": {
-    "immutable": "^3.7.6",
+    "immutable": "3.7.6",
     "react": "0.14.3",
-    "react-dom": "0.14.3"
+    "react-dom": "0.14.3",
+    "ballade": "0.1.3"
   }
 }

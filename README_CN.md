@@ -165,8 +165,6 @@ var actions = dispatcher.ceateActions({
 actions.updateTitle('foo');
 ```
 
-Note: **ActionType** must be unique, if application is complex, make sure the **ActionType** is unique, recommend use pseudo namespace. In `example/update-title` the `example` is namaspace.
-
 注意: **ActionType** 必须是唯一的，如果有重名，会给出错误提示。如果一个应用比较复杂，为了确保 **ActionType** 不重复，建议使用「伪命名空间」来进行区分， 在 `example/update-title` 中，`example` 就是「伪命名空间」。
 
 ---
@@ -285,11 +283,7 @@ console.log(store.mutable.get('title').foo) // => 'bar'
 
 「不可变」数据的访问器。上面的 `exampleStore.immutable` 和 `store.immutable` 都是「不可变」数据的访问器。
 
-Note: `store.immutable` accessor only available `createImmutableStore`.
-
 注意：`store.immutable` 访问器只能通过执行 `createImmutableStore` 来创建。
-
-`store.immutable` accessor just a **Immutable** instance.
 
 `store.immutable` 访问器只是封装了 `Immutable` 的实例，所以它包含了 `Immutable` 实例的所有原型方法。
 
@@ -310,8 +304,6 @@ store.immutbale.updateIn
 * **store.event.subscribe(type, handler)**
   * `type` *String* *optional*
   * `handler` *Function*
-
-Subscribe event, `type` is event type, it is optional.
 
 订阅 **Store** 中的数据变化的事件。`type` 就是事件类型，它是可选的，它和定义在 `schema` 中的数据 key 相对应。`hanlder` 则是数据变化的处理函数。
 

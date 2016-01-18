@@ -9,21 +9,21 @@ class App extends Component {
     state = {
         $todos: todoStore.immutable.get('todos'),
         filter: 'all'
-    }
+    };
 
     handleFilter = (filter) => {
         this.setState({
             filter
         });
-    }
+    };
 
     componentDidMount () {
         todoStore.event.subscribe('todos', this.refreshTodos);
-    }
+    };
 
     componentWillUnmount () {
         todoStore.event.unsubscribe('todos');
-    }
+    };
 
     shouldComponentUpdate (nextProps, nextState) {
         const currentState = this.state;
@@ -32,7 +32,7 @@ class App extends Component {
             currentState[item] !== nextState[item] &&
             !is(currentState[item], nextState[item])
         ));
-    }
+    };
 
     refreshTodos = () => {
         const $todos = todoStore.immutable.get('todos');
@@ -40,7 +40,7 @@ class App extends Component {
         this.setState({
             $todos
         });
-    }
+    };
 
     render () {
         const $todos = this.state.$todos;
@@ -69,7 +69,7 @@ class App extends Component {
                     onFilter={this.handleFilter} />
             </div>
         );
-    }
+    };
 };
 
 export default App;

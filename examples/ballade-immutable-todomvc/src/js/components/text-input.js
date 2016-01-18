@@ -3,32 +3,32 @@ import React, { PropTypes, Component } from 'react';
 class TextInput extends Component {
     state = {
         value: this.props.value || ''
-    }
+    };
 
     static propTypes = {
         placeholder: PropTypes.string,
         onSave: PropTypes.func.isRequired,
         value: PropTypes.string,
         bindBlur: PropTypes.bool
-    }
+    };
 
     handleChange = (event) => {
         this.setState({
             value: event.target.value
         });
-    }
+    };
 
     handleBlur = () => {
         if (this.props.bindBlur) {
             this.save(this.state.value);
         }
-    }
+    };
 
     handleKeyDown = (event) => {
         if (event.keyCode === 13) {
             this.save(this.state.value);
         }
-    }
+    };
 
     save = (text) => {
         text = text.trim();
@@ -40,7 +40,7 @@ class TextInput extends Component {
                 value: ''
             });
         }
-    }
+    };
 
     render () {
         return (
@@ -53,7 +53,7 @@ class TextInput extends Component {
                 onKeyDown={this.handleKeyDown}
                 value={this.state.value} />
         )
-    }
+    };
 };
 
 export default TextInput;

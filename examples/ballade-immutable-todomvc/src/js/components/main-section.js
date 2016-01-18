@@ -5,7 +5,7 @@ class MainSection extends Component {
     static propTypes = {
         $todos: PropTypes.object,
         filter: PropTypes.string
-    }
+    };
 
     renderItems = () => {
         const {filter, $todos} = this.props;
@@ -28,7 +28,7 @@ class MainSection extends Component {
                 );
             }
         });
-    }
+    };
 
     render () {
         return (
@@ -38,7 +38,7 @@ class MainSection extends Component {
                 </ul>
             </section>
         )
-    }
+    };
 };
 
 export default MainSection;

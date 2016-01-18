@@ -5,13 +5,13 @@ class Header extends React.Component {
     static propTypes = {
         onFilter: PropTypes.func,
         filter: PropTypes.string
-    }
+    };
 
     hanldeFilter = (event) => {
         const conditions = event.target.dataset.filter;
 
         this.props.onFilter(conditions);
-    }
+    };
 
     renderFilter = () => {
         return ['all', 'active', 'completed'].map((item, i) => {
@@ -27,7 +27,7 @@ class Header extends React.Component {
                 </a>
             )
         });
-    }
+    };
 
     render () {
         const filterElems = this.renderFilter();
@@ -46,7 +46,7 @@ class Header extends React.Component {
                 }
             </footer>
         )
-    }
+    };
 };
 
 export default Header;

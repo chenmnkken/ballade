@@ -8,21 +8,21 @@ class App extends Component {
     state = {
         todos: todoStore.mutable.get('todos'),
         filter: 'all'
-    }
+    };
 
     handleFilter = (filter) => {
         this.setState({
             filter
         });
-    }
+    };
 
     componentDidMount () {
         todoStore.event.subscribe('todos', this.refreshTodos);
-    }
+    };
 
     componentWillUnmount () {
         todoStore.event.unsubscribe('todos');
-    }
+    };
 
     refreshTodos = () => {
         const todos = todoStore.mutable.get('todos');
@@ -30,7 +30,7 @@ class App extends Component {
         this.setState({
             todos
         });
-    }
+    };
 
     render () {
         const todos = this.state.todos;
@@ -59,7 +59,7 @@ class App extends Component {
                     onFilter={this.handleFilter} />
             </div>
         );
-    }
+    };
 };
 
 export default App;

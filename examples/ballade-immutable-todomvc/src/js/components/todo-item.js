@@ -5,13 +5,13 @@ import TextInput from './text-input';
 class TodoItem extends Component {
     state = {
         status: 'normal'
-    }
+    };
 
     static propTypes = {
         id: PropTypes.string,
         complete: PropTypes.bool,
         text: PropTypes.string
-    }
+    };
 
     handleUpdate = (text) => {
         this.setState({
@@ -19,21 +19,21 @@ class TodoItem extends Component {
         }, () => {
             todoActions.update(this.props.id, text);
         });
-    }
+    };
 
     handleToggle = () => {
         todoActions.toggle(this.props.id);
-    }
+    };
 
     handleDelete = () => {
         todoActions.delete(this.props.id);
-    }
+    };
 
     handleDoubleClick = () => {
         this.setState({
             status: 'editing'
         });
-    }
+    };
 
     render () {
         const { id, text, complete } = this.props;
@@ -72,7 +72,7 @@ class TodoItem extends Component {
                 {itemElem}
             </li>
         )
-    }
-}
+    };
+};
 
 export default TodoItem;

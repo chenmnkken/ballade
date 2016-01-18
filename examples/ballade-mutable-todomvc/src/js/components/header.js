@@ -5,15 +5,15 @@ import todoActions from '../actions/todos';
 class Header extends Component {
     static propTypes = {
         completed: PropTypes.bool
-    }
+    };
 
     handleSave = (text) => {
         todoActions.create(text);
-    }
+    };
 
     handleToggle = () => {
         todoActions.toggleAll();
-    }
+    };
 
     render () {
         let toggleClassName = 'icon-font toggle-all';
@@ -34,7 +34,7 @@ class Header extends Component {
                 </div>
             </header>
         )
-    }
+    };
 };
 
 export default Header;

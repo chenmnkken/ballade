@@ -1,7 +1,7 @@
 /**
- * Ballade 0.1.4
+ * Ballade 0.1.5
  * author: chenmnkken@gmail.com
- * date: 2015-12-28
+ * date: 2016-01-23
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -12,7 +12,7 @@ var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
 
 var Ballade = {
-    version: '0.1.4'
+    version: '0.1.5'
 };
 
 /**

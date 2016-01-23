@@ -41,12 +41,12 @@ Queue.prototype = {
             workflow(data, this.execute.bind(this));
         }
         else {
-            this.completeCallback(data);
-
             // Get backup, begin loop
             if (this._workflows) {
                 this.workflows = this._workflows.concat();
             }
+
+            this.completeCallback(data);
         }
     }
 };

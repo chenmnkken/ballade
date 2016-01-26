@@ -1,7 +1,7 @@
 /**
- * Ballade 0.1.5
+ * Ballade 0.2.0
  * author: chenmnkken@gmail.com
- * date: 2016-01-23
+ * date: 2016-01-26
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -11,7 +11,7 @@ var Queue = require('./queue');
 var MutableStore = require('./mutable-store');
 
 var Ballade = {
-    version: '0.1.5'
+    version: '0.2.0'
 };
 
 /**
@@ -105,7 +105,7 @@ Dispatcher.prototype = {
         for (name in actionCreators) {
             creator = actionCreators[name];
 
-            actions[name] = (function(creator) {
+            actions[name] = (function(creator, actionsId) {
                 return function () {
                     var args = arguments;
 
@@ -113,7 +113,7 @@ Dispatcher.prototype = {
                         return creator.apply(null, Array.prototype.slice.call(args));
                     });
                 };
-            })(creator);
+            })(creator, actionsId);
         }
 
         return actions;

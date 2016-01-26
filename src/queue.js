@@ -33,22 +33,24 @@ Queue.prototype = {
      * Execute workflow
      * @param {Object} workflow function data required
      */
-    execute: function (data) {
-        var workflow;
+     execute: function (data, workflows) {
+         workflows = workflows || this.workflows.concat();
+         var workflow;
 
-        if (this.workflows.length) {
-            workflow = this.workflows.shift();
-            workflow(data, this.execute.bind(this));
-        }
-        else {
-            // Get backup, begin loop
-            if (this._workflows) {
-                this.workflows = this._workflows.concat();
-            }
+         if (workflows.length) {
+             workflow = workflows.shift();
+             workflow(data, this.execute.bind(this, data, workflows));
+         }
+         else {
+             // Get backup, begin loop
+             if (this._workflows) {
+                 this.workflows = this._workflows.concat();
+             }
 
-            this.completeCallback(data);
-        }
-    }
+             workflows = null;
+             this.completeCallback(data);
+         }
+     }
 };
 
 module.exports = Queue;

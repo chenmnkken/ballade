@@ -7,11 +7,11 @@ dispatcher.use(function (payload, next) {
     if (payload.title) {
         setTimeout(function () {
             payload.title += ' is';
-            next(payload);
+            next();
         }, 500);
     }
     else {
-        next(payload);
+        next();
     }
 });
 
@@ -20,7 +20,7 @@ dispatcher.use(function (payload, next) {
         payload.title += ' done';
     }
 
-    next(payload);
+    next();
 });
 
 module.exports = dispatcher;

@@ -5,7 +5,7 @@ const dispatcher = new Ballade.Dispatcher();
 dispatcher.use((payload, next) => {
     console.info(`action ${payload.type}`);
     console.log(payload);
-    next(payload);
+    next();
 });
 
 export default dispatcher;

@@ -2,9 +2,9 @@
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 0.1.5
+ * Ballade 0.2.1
  * author: chenmnkken@gmail.com
- * date: 2016-01-23
+ * date: 2016-01-30
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -15,7 +15,7 @@ var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
 
 var Ballade = {
-    version: '0.1.5'
+    version: '0.2.1'
 };
 
 /**
@@ -45,23 +45,25 @@ Dispatcher.prototype = {
             if (typeof callback === 'function') {
                 result = callback(item.store, payload);
 
-                // Invoke mutable store callback
-                if (item.mutable) {
-                    if (result !== undefined) {
-                        item.store.event.publish(result);
+                if (result !== undefined) {
+                    // Invoke mutable store callback
+                    if (item.mutable) {
+                        if (result !== undefined) {
+                            item.store.event.publish(result);
+                        }
                     }
-                }
-                // Invoke immutable store callback
-                else {
-                    if (result !== item.store.immutable) {
-                        item.store.immutable.forEach(function (value, key) {
-                            if (value !== result.get(key)) {
-                                changeKey = key;
-                            }
-                        });
+                    // Invoke immutable store callback
+                    else {
+                        if (result !== item.store.immutable) {
+                            item.store.immutable.forEach(function (value, key) {
+                                if (value !== result.get(key)) {
+                                    changeKey = key;
+                                }
+                            });
 
-                        item.store.immutable = result;
-                        item.store.event.publish(changeKey);
+                            item.store.immutable = result;
+                            item.store.event.publish(changeKey);
+                        }
                     }
                 }
             }
@@ -124,7 +126,7 @@ Dispatcher.prototype = {
         for (name in actionCreators) {
             creator = actionCreators[name];
 
-            actions[name] = (function(creator) {
+            actions[name] = (function(creator, actionsId) {
                 return function () {
                     var args = arguments;
 
@@ -132,7 +134,7 @@ Dispatcher.prototype = {
                         return creator.apply(null, Array.prototype.slice.call(args));
                     });
                 };
-            })(creator);
+            })(creator, actionsId);
         }
 
         return actions;
@@ -525,22 +527,24 @@ Queue.prototype = {
      * Execute workflow
      * @param {Object} workflow function data required
      */
-    execute: function (data) {
-        var workflow;
+     execute: function (data, workflows) {
+         workflows = workflows || this.workflows.concat();
+         var workflow;
 
-        if (this.workflows.length) {
-            workflow = this.workflows.shift();
-            workflow(data, this.execute.bind(this));
-        }
-        else {
-            // Get backup, begin loop
-            if (this._workflows) {
-                this.workflows = this._workflows.concat();
-            }
+         if (workflows.length) {
+             workflow = workflows.shift();
+             workflow(data, this.execute.bind(this, data, workflows));
+         }
+         else {
+             // Get backup, begin loop
+             if (this._workflows) {
+                 this.workflows = this._workflows.concat();
+             }
 
-            this.completeCallback(data);
-        }
-    }
+             workflows = null;
+             this.completeCallback(data);
+         }
+     }
 };
 
 module.exports = Queue;

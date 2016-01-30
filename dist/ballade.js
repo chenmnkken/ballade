@@ -1,8 +1,8 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Ballade = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
- * Ballade 0.1.5
+ * Ballade 0.2.1
  * author: chenmnkken@gmail.com
- * date: 2016-01-23
+ * date: 2016-01-30
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -12,7 +12,7 @@ var Queue = require('./queue');
 var MutableStore = require('./mutable-store');
 
 var Ballade = {
-    version: '0.1.5'
+    version: '0.2.1'
 };
 
 /**
@@ -106,7 +106,7 @@ Dispatcher.prototype = {
         for (name in actionCreators) {
             creator = actionCreators[name];
 
-            actions[name] = (function(creator) {
+            actions[name] = (function(creator, actionsId) {
                 return function () {
                     var args = arguments;
 
@@ -114,7 +114,7 @@ Dispatcher.prototype = {
                         return creator.apply(null, Array.prototype.slice.call(args));
                     });
                 };
-            })(creator);
+            })(creator, actionsId);
         }
 
         return actions;
@@ -440,22 +440,24 @@ Queue.prototype = {
      * Execute workflow
      * @param {Object} workflow function data required
      */
-    execute: function (data) {
-        var workflow;
+     execute: function (data, workflows) {
+         workflows = workflows || this.workflows.concat();
+         var workflow;
 
-        if (this.workflows.length) {
-            workflow = this.workflows.shift();
-            workflow(data, this.execute.bind(this));
-        }
-        else {
-            // Get backup, begin loop
-            if (this._workflows) {
-                this.workflows = this._workflows.concat();
-            }
+         if (workflows.length) {
+             workflow = workflows.shift();
+             workflow(data, this.execute.bind(this, data, workflows));
+         }
+         else {
+             // Get backup, begin loop
+             if (this._workflows) {
+                 this.workflows = this._workflows.concat();
+             }
 
-            this.completeCallback(data);
-        }
-    }
+             workflows = null;
+             this.completeCallback(data);
+         }
+     }
 };
 
 module.exports = Queue;

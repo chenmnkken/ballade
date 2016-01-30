@@ -1,7 +1,7 @@
 /**
- * Ballade 0.2.0
+ * Ballade 0.2.1
  * author: chenmnkken@gmail.com
- * date: 2016-01-26
+ * date: 2016-01-30
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -12,7 +12,7 @@ var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
 
 var Ballade = {
-    version: '0.2.0'
+    version: '0.2.1'
 };
 
 /**
@@ -42,23 +42,25 @@ Dispatcher.prototype = {
             if (typeof callback === 'function') {
                 result = callback(item.store, payload);
 
-                // Invoke mutable store callback
-                if (item.mutable) {
-                    if (result !== undefined) {
-                        item.store.event.publish(result);
+                if (result !== undefined) {
+                    // Invoke mutable store callback
+                    if (item.mutable) {
+                        if (result !== undefined) {
+                            item.store.event.publish(result);
+                        }
                     }
-                }
-                // Invoke immutable store callback
-                else {
-                    if (result !== item.store.immutable) {
-                        item.store.immutable.forEach(function (value, key) {
-                            if (value !== result.get(key)) {
-                                changeKey = key;
-                            }
-                        });
+                    // Invoke immutable store callback
+                    else {
+                        if (result !== item.store.immutable) {
+                            item.store.immutable.forEach(function (value, key) {
+                                if (value !== result.get(key)) {
+                                    changeKey = key;
+                                }
+                            });
 
-                        item.store.immutable = result;
-                        item.store.event.publish(changeKey);
+                            item.store.immutable = result;
+                            item.store.event.publish(changeKey);
+                        }
                     }
                 }
             }

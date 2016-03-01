@@ -122,7 +122,7 @@ dispatcher.use(function (payload, next) {
 
 	// must invoke next callback,
 	// payload through the callback transfer to next middleware
-	next(payload);
+	next();
 });
 ```
 
@@ -138,12 +138,12 @@ dispatcher.use(function (payload, next) {
 	    .then(function(response){
 	        payload.response = response;
 	        // next callback in a Asynchronous function
-	        next(payload);
+	        next();
 	    });
 	}
 	// If not uri, just invoke next callback
 	else {
-	    next(payload);
+	    next();
 	}
 });
 ```

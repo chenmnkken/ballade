@@ -119,7 +119,7 @@ dispatcher.use(function (payload, next) {
 
 	// 在中间件中，必须执行 next 函数，
 	// 这样才能将处理完的 payload 数据传递给下一个中间件
-	next(payload);
+	next();
 });
 ```
 
@@ -135,12 +135,12 @@ dispatcher.use(function (payload, next) {
 	    .then(function(response){
 	        payload.response = response;
 	        // 异步函数中的 next 回调
-	        next(payload);
+	        next();
 	    });
 	}
 	// 如果不包含 uri 字段，则不作任何处理
 	else {
-	    next(payload);
+	    next();
 	}
 });
 ```

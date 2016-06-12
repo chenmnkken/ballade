@@ -55,16 +55,27 @@ Event.prototype = {
 
         var i = 0;
         var item;
+        var flag = false;
 
         for (; i < this.handlers.length; i++) {
             item = this.handlers[i];
 
-            if (
-                (!item.type && item.handeler === handler) ||
-                (type && handler && item.type === type && item.handler === handler) ||
-                (type && item.type === type) ||
-                (handler && item.handler === handler)
-                ) {
+            if (!item.type) {
+                flag = item.handler === handler;
+            }
+            else {
+                if (type && handler) {
+                    flag = item.type === type && item.handler === handler;
+                }
+                else if (type) {
+                    flag = item.type === type;
+                }
+                else if (handler) {
+                    flag = item.handler === handler;
+                }
+            }
+
+            if (flag) {
                 this.handlers.splice(i--, 1);
             }
         }

@@ -3,12 +3,18 @@
 var Immutable = require('immutable');
 var dispatcher = require('./dispatcher');
 var store1 = require('./store1');
+var Schema = require('../../src/ballade').Schema;
 
-var schema = {
-    title: null,
-    playlist: [],
-    greetings: null
-};
+var musicSchema = new Schema({
+    name: String,
+    musician: String
+});
+
+var schema = new Schema({
+    title: String,
+    playlist: [musicSchema],
+    greetings: String
+});
 
 var store = dispatcher.createImmutableStore(schema, {
     'immutable-test2/update-title': function (store, action) {
@@ -16,9 +22,9 @@ var store = dispatcher.createImmutableStore(schema, {
     },
 
     'immutable-test2/add-music': function (store, action) {
-        return store.immutable.update('playlist', (playlist) => (
-            playlist.push(Immutable.Map(action.music))
-        ));
+        var playlist = store.immutable.get('playlist');
+        playlist = playlist.push(Immutable.Map(action.music));
+        return store.immutable.set('playlist', playlist);
     },
 
     'immutable-test/say-hello': function (store, action) {

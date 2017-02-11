@@ -1,5 +1,7 @@
 'use strict';
 
+// @TODO 保持 console
+
 var copy = require('./copy');
 var Event = require('./event');
 
@@ -16,15 +18,17 @@ var baseTypes = {
  * Use to mutable object data, the instance can set/get for plain object.
  * @param {Object} store schema
  */
-var Mutable = function (schema) {
+var _MutableStore = function (schema) {
     this.store = {};
+    this.schema = schema;
+    var defaultData = this.schema.defaultData;
 
-    Object.keys(schema).forEach(function (item) {
-        this.store[item] = schema[item];
+    Object.keys(defaultData).forEach(function (item) {
+        this.store[item] = defaultData[item];
     }.bind(this));
 };
 
-Mutable.prototype = {
+_MutableStore.prototype = {
     /**
      * Set data in store.
      * If the key not in schema, set operation should failed.
@@ -33,8 +37,21 @@ Mutable.prototype = {
      * @return {String} object key
      */
     set: function (key, value) {
-        if (key in this.store) {
-            this.store[key] = value;
+        var result = this.schema.validator(key, value);
+
+        if (result.messages) {
+            result.messages.forEach(function (item) {
+                if (item.type === 'warning') {
+                    console.warn('Schema Validation Warning: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
+                }
+                else if (item.type === 'error') {
+                    console.error('Schema Validation Error: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
+                }
+            });
+        }
+
+        if ('value' in result) {
+            this.store[key] = result.value;
             return key;
         }
     },
@@ -75,7 +92,7 @@ Mutable.prototype = {
  * @mutableStore.event: Event instance
  */
 var MutableStore = function (schema) {
-    this.mutable = new Mutable(schema);
+    this.mutable = new _MutableStore(schema);
     this.event = new Event();
 };
 

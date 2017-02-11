@@ -1,18 +1,28 @@
+const Schema = require('ballade').Schema;
 import dispatcher from '../dispatcher/dispatcher';
 import constatns from '../constants/todos';
 const TODOS = 'todos';
 
-const todoSchema = {
-    todos: [
-        {
-            id: (+new Date() + Math.floor(Math.random() * 999999)).toString(36),
-            complete: false,
-            text: "Ballade Getting Started"
-        }
-    ]
-};
+const todoSchema = new Schema({
+    id: {
+        type: String,
+        default: (+new Date() + Math.floor(Math.random() * 999999)).toString(36)
+    },
+    complete: {
+        type: Boolean,
+        default: false
+    },
+    text: {
+        type: String,
+        default: "Ballade Getting Started"
+    }
+});
 
-const todoStore = dispatcher.createMutableStore(todoSchema, {
+const todosSchema = new Schema({
+    todos: [todoSchema]
+});
+
+const todosStore = dispatcher.createMutableStore(todosSchema, {
     [`${TODOS}/${constatns.CREATE}`]: (store, action) => {
         const todos = store.mutable.get('todos');
 
@@ -91,4 +101,4 @@ const todoStore = dispatcher.createMutableStore(todoSchema, {
     }
 });
 
-export default todoStore;
+export default todosStore;

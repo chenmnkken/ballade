@@ -1,18 +1,27 @@
+const Schema = require('ballade').Schema;
 import {Map} from 'immutable';
 import dispatcher from '../dispatcher/dispatcher';
 import constatns from '../constants/todos';
 const TODOS = 'todos';
 
+const todoSchema = new Schema({
+    id: {
+        type: String,
+        default: (+new Date() + Math.floor(Math.random() * 999999)).toString(36)
+    },
+    complete: {
+        type: Boolean,
+        default: false
+    },
+    text: {
+        type: String,
+        default: "Ballade Getting Started"
+    }
+});
 
-const todoSchema = {
-    todos: [
-        {
-            id: (+new Date() + Math.floor(Math.random() * 999999)).toString(36),
-            complete: false,
-            text: "Ballade Getting Started"
-        }
-    ]
-};
+const todosSchema = new Schema({
+    todos: [todoSchema]
+});
 
 // Filter specific index from todos by id
 const getTodoId = ($todos, id) => {
@@ -28,7 +37,7 @@ const getTodoId = ($todos, id) => {
     return index;
 };
 
-const todoStore = dispatcher.createImmutableStore(todoSchema, {
+const todosStore = dispatcher.createImmutableStore(todosSchema, {
     [`${TODOS}/${constatns.CREATE}`]: (store, action) => {
         let $todos = store.immutable.get('todos');
 
@@ -100,4 +109,4 @@ const todoStore = dispatcher.createImmutableStore(todoSchema, {
     }
 });
 
-export default todoStore;
+export default todosStore;

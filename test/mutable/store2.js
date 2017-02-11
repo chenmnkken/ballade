@@ -1,13 +1,19 @@
 'use strict';
 
 var dispatcher = require('./dispatcher');
+var Schema = require('../../src/ballade').Schema;
 var store1 = require('./store1');
 
-var schema = {
-    title: null,
-    playlist: [],
-    greetings: null
-};
+var playitem = new Schema({
+    name: String,
+    musician: String
+});
+
+var schema = new Schema({
+    title: String,
+    playlist: [playitem],
+    greetings: String
+});
 
 var store = dispatcher.createMutableStore(schema, {
     'mutable-test2/update-title': function (store, action) {

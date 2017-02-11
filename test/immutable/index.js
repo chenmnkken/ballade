@@ -52,6 +52,7 @@ describe('Ballade immutable test', function () {
                     assert.strictEqual(playlist.getIn([0, 'name']), 'Ballade No.1');
                     assert.strictEqual(playlist.getIn([0, 'musician']), 'Chopin');
 
+                    // test unwriteable
                     playlist.push(Immutable.Map({
                         name: 'Suite No.3 in D',
                         musician: 'Bach'

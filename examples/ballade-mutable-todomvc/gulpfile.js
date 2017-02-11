@@ -8,6 +8,7 @@ var levelup = require('levelup');
 var source = require('vinyl-source-stream');
 var less = require('gulp-less');
 var connect = require('gulp-connect');
+var objectAssign = require('object-assign');
 var db = levelup('./.cache');
 
 var srcRoot = 'src';
@@ -15,11 +16,12 @@ var jsSrcPath = './src/js/index.js';
 var jsDestPath = './src/js';
 var port = 3003;
 
-var browserOpts = {
+var browserOpts = objectAssign({}, watchify.args, {
     entries: [jsSrcPath],
     debug: true,
-    insertGlobals: true
-};
+    insertGlobals: true,
+    detectGlobals: false
+});
 
 gulp.task('connect', function () {
     connect.server({
@@ -52,7 +54,7 @@ var bundle = function () {
 
 var babelifyCache = cacheify(babelify.configure({
     presets: ["es2015", "stage-0", "react"],
-    plugins: ['external-helpers-2']
+    plugins: ['external-helpers']
 }), db);
 
 var bundler = browserify(browserOpts)

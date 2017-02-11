@@ -8,11 +8,13 @@
 'use strict';
 
 var Queue = require('./queue');
+var Schema = require('./schema');
 var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
 
 var Ballade = {
-    version: '0.2.2'
+    version: '0.2.2',
+    Schema: Schema
 };
 
 /**
@@ -43,25 +45,7 @@ Dispatcher.prototype = {
                 result = callback(item.store, payload);
 
                 if (result !== undefined) {
-                    // Invoke mutable store callback
-                    if (item.mutable) {
-                        if (result !== undefined) {
-                            item.store.event.publish(result);
-                        }
-                    }
-                    // Invoke immutable store callback
-                    else {
-                        if (result !== item.store.immutable) {
-                            item.store.immutable.forEach(function (value, key) {
-                                if (value !== result.get(key)) {
-                                    changeKey = key;
-                                }
-                            });
-
-                            item.store.immutable = result;
-                            item.store.event.publish(changeKey);
-                        }
-                    }
+                    item.store.event.publish(result);
                 }
             }
         });
@@ -160,7 +144,6 @@ Dispatcher.prototype = {
         proxyStore.event.unsubscribe = store.event.unsubscribe.bind(store.event);
 
         this.storeQueue.push({
-            mutable: true,
             store: store,
             callbacks: callbacks
         });
@@ -181,13 +164,21 @@ Dispatcher.prototype = {
 
         var store = new ImmutableStore(schema);
 
+        var proxyStore = {
+            immutable: {},
+            event: {}
+        };
+
+        proxyStore.immutable.get = store.immutable.get.bind(store.immutable);
+        proxyStore.event.subscribe = store.event.subscribe.bind(store.event);
+        proxyStore.event.unsubscribe = store.event.unsubscribe.bind(store.event);
+
         this.storeQueue.push({
-            mutable: false,
             store: store,
             callbacks: callbacks
         });
 
-        return store;
+        return proxyStore;
     }
 };
 

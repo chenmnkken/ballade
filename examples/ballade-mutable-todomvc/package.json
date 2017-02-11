@@ -1,7 +1,6 @@
 {
   "name": "ballade-mutable-todomvc",
-  "version": "0.1.3",
-  "description": "ballade mutable todomvc example",
+  "description": "Ballade mutable todomvc example",
   "scripts": {
     "start": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,25 +8,26 @@
   "author": "chenmnkken@gmail.com",
   "license": "ISC",
   "devDependencies": {
-    "babel-plugin-external-helpers-2": "6.3.13",
-    "babel-preset-es2015": "6.1.18",
-    "babel-preset-react": "6.1.18",
-    "babel-preset-stage-0": "6.3.13",
-    "babelify": "7.2.0",
-    "browserify": "12.0.1",
+    "babel-plugin-external-helpers": "6.8.0",
+    "babel-preset-es2015": "6.16.0",
+    "babel-preset-react": "6.16.0",
+    "babel-preset-stage-0": "6.16.0",
+    "babelify": "7.3.0",
+    "browserify": "13.1.1",
     "cacheify": "0.4.1",
     "gulp": "3.9.0",
-    "gulp-connect": "2.2.0",
-    "gulp-less": "3.0.5",
+    "gulp-connect": "5.0.0",
+    "gulp-less": "3.1.0",
     "gulp-util": "3.0.7",
-    "leveldown": "1.4.2",
-    "levelup": "1.3.0",
+    "leveldown": "1.5.0",
+    "levelup": "1.3.3",
     "vinyl-source-stream": "1.1.0",
-    "watchify": "3.6.1"
+    "watchify": "3.7.0"
   },
   "dependencies": {
-    "react": "0.14.3",
-    "react-dom": "0.14.3",
-    "ballade": "0.2.0"
+    "ballade": "0.2.0",
+    "object-assign": "4.1.0",
+    "react": "15.4.2",
+    "react-dom": "15.4.2"
   }
 }

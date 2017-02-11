@@ -51,6 +51,7 @@ describe('Ballade mutable test', function () {
                     assert.strictEqual(playlist[0].name, 'Ballade No.1');
                     assert.strictEqual(playlist[0].musician, 'Chopin');
 
+                    // test unwriteable
                     playlist.push({
                         name: 'Suite No.3 in D',
                         musician: 'Bach'

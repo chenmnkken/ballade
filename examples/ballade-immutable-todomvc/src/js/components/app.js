@@ -3,11 +3,11 @@ import {is} from 'immutable';
 import Footer from './footer';
 import Header from './header';
 import MainSection from './main-section';
-import todoStore from '../stores/todos';
+import todosStore from '../stores/todos';
 
 class App extends Component {
     state = {
-        $todos: todoStore.immutable.get('todos'),
+        $todos: todosStore.immutable.get('todos'),
         filter: 'all'
     };
 
@@ -18,11 +18,11 @@ class App extends Component {
     };
 
     componentDidMount () {
-        todoStore.event.subscribe('todos', this.refreshTodos);
+        todosStore.event.subscribe('todos', this.refreshTodos);
     };
 
     componentWillUnmount () {
-        todoStore.event.unsubscribe('todos');
+        todosStore.event.unsubscribe('todos');
     };
 
     shouldComponentUpdate (nextProps, nextState) {
@@ -35,7 +35,7 @@ class App extends Component {
     };
 
     refreshTodos = () => {
-        const $todos = todoStore.immutable.get('todos');
+        const $todos = todosStore.immutable.get('todos');
 
         this.setState({
             $todos

@@ -8,10 +8,12 @@
 'use strict';
 
 var Queue = require('./queue');
+var Schema = require('./schema');
 var MutableStore = require('./mutable-store');
 
 var Ballade = {
-    version: '0.2.2'
+    version: '0.2.2',
+    Schema: Schema
 };
 
 /**

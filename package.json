@@ -13,7 +13,7 @@
   "main": "src/ballade.js",
   "scripts": {
     "build": "./node_modules/.bin/gulp",
-    "test": "cd test/mutable; ../../node_modules/.bin/mocha index.js; cd ../immutable; ../../node_modules/.bin/mocha index.js"
+    "test": "cd test; ../node_modules/.bin/mocha schema-mutable.js; ../node_modules/.bin/mocha schema-immutable.js; cd ./mutable; ../../node_modules/.bin/mocha index.js; cd ../immutable; ../../node_modules/.bin/mocha index.js"
   },
   "repository": {
     "type": "git",

@@ -3,7 +3,7 @@
 var assert = require('assert');
 var Schema = require('../src/schema');
 
-describe('Schema validator test', function () {
+describe('Schema validator test mutable data', function () {
     describe('schema validator & cast', function () {
         var schema1 = new Schema({
             str:  String,

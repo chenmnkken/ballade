@@ -10,7 +10,6 @@ var CONSTRUCTOR = '__schemaConstructor__';
 var CHILD = '__schemaChild__';
 
 var toString = Object.prototype.toString;
-var Immutable = require('immutable');
 
 var _typeof = function (subject, isImmutable) {
     // immutable data covert to mutable data before type detect
@@ -52,11 +51,11 @@ var proxyDelete = function (obj, key, isImmutable) {
 };
 
 var valueConvertHooks = {
-    required: function (value) {
+    $required: function (value) {
         return value;
     },
 
-    default: function (value, defaultValue) {
+    $default: function (value, defaultValue) {
         if (value === null || value === undefined) {
             if (_typeof(defaultValue) === 'Function') {
                 return defaultValue();
@@ -67,24 +66,24 @@ var valueConvertHooks = {
         return value;
     },
 
-    validate: function (value, validateFn) {
+    $validate: function (value, validateFn) {
         return validateFn(value);
     },
 
     'String': {
-        lowercase: function (value) {
+        $lowercase: function (value) {
             return value.toLowerCase();
         },
 
-        uppercase: function (value) {
+        $uppercase: function (value) {
             return value.toUpperCase();
         },
 
-        trim: function (value) {
+        $trim: function (value) {
             return value.trim();
         },
 
-        match: function (value, regexp) {
+        $match: function (value, regexp) {
             if (_typeof(regexp) !== 'RegExp') {
                 throw new Error('Schema Options Error: `match` property must be RegExp');
             }
@@ -94,7 +93,7 @@ var valueConvertHooks = {
             }
         },
 
-        enum: function (value, enumArray) {
+        $enum: function (value, enumArray) {
             if (!Array.isArray(enumArray) || !enumArray.length) {
                 throw new Error('Schema Options Error: `enum` must be correct Array');
             }
@@ -106,13 +105,13 @@ var valueConvertHooks = {
     },
 
     'Number': {
-        min: function (value, minValue) {
+        $min: function (value, minValue) {
             if (value >= minValue) {
                 return value;
             }
         },
 
-        max: function (value, maxValue) {
+        $max: function (value, maxValue) {
             if (value <= maxValue) {
                 return value;
             }
@@ -218,15 +217,15 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
                 return;
             }
 
-            if (data.type && typeof data.type === 'function') {
-                dataTypes[item][TYPE] = data.type.name;
-                dataTypes[item][CONSTRUCTOR] = data.type;
+            if (typeof data.$type === 'function') {
+                dataTypes[item][TYPE] = data.$type.name;
+                dataTypes[item][CONSTRUCTOR] = data.$type;
                 dataTypes[item][HOOK] = [];
 
                 // regist hooks
                 Object.keys(data).forEach(function (subItem) {
                     // filter false hook
-                    if (subItem !== 'type' && data[subItem]) {
+                    if (subItem !== '$type' && data[subItem]) {
                         dataTypes[item][HOOK].push({
                             key: subItem,
                             value: data[subItem]
@@ -235,18 +234,18 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
                         if (subItem === 'default') {
                             if (_typeof(data[subItem]) === 'Function') {
                                 if (item === ITEM) {
-                                    defaultData.push(data.default());
+                                    defaultData.push(data.$default());
                                 }
                                 else {
-                                    defaultData[item] = data.default();
+                                    defaultData[item] = data.$default();
                                 }
                             }
                             else {
                                 if (item === ITEM) {
-                                    defaultData.push(data.default);
+                                    defaultData.push(data.$default);
                                 }
                                 else {
-                                    defaultData[item] = data.default;
+                                    defaultData[item] = data.$default;
                                 }
                             }
                         }
@@ -279,7 +278,7 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
             }
         }
         else {
-            throw new Error('Set `' + item + '` schema error, may be forget set `type` property or `type Constructor Function`');
+            throw new Error('Set `' + item + '` schema error, may be forget set `$type` property or `type Constructor Function`');
         }
     });
 };
@@ -544,6 +543,10 @@ Schema.prototype = {
             return {
                 value: value
             };
+        }
+
+        if (dataType[TYPE] === 'Schema') {
+            return objectValidator.call(this, value, dataType[CHILD].dataTypes, path, isImmutable);
         }
 
         if (containerType === 'Array' && type === 'Array') {

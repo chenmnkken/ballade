@@ -102,15 +102,15 @@ describe('Schema validator test immutable test', function () {
         var schema2 = new Schema({
             bar: {
                 biz: {
-                    type: String,
-                    required: true
+                    $type: String,
+                    $required: true
                 },
                 count: Number
             },
             obj: {
                 votes: {
-                    type: Number,
-                    default: 1
+                    $type: Number,
+                    $default: 1
                 },
                 favs:  Number
             }
@@ -159,8 +159,8 @@ describe('Schema validator test immutable test', function () {
         var schema3 = new Schema({
             foo: {
                 bar: {
-                    type: String,
-                    default: 'bar'
+                    $type: String,
+                    $default: 'bar'
                 },
                 biz: String
             },
@@ -169,6 +169,18 @@ describe('Schema validator test immutable test', function () {
 
         var schema4 = new Schema({
             arr: [schema3]
+        });
+
+        var schema5 = new Schema({
+            str: {
+                $type: String,
+                $uppercase: true
+            },
+            num: Number
+        });
+
+        var schema6 = new Schema({
+            meta: schema5
         });
 
         it('child schema is work', function (done) {
@@ -202,6 +214,15 @@ describe('Schema validator test immutable test', function () {
             assert.strictEqual(result.messages[1].path, 'arr[1].count');
             assert.strictEqual(result.messages[1].originalValue, '122');
             assert.strictEqual(result.messages[1].type, 'warning');
+
+            var result2 = schema6.validator('meta', Map({
+                str: 'hello',
+                num: 100
+            }), true);
+
+            assert.strictEqual(result2.value.get('str'), 'HELLO');
+            assert.strictEqual(result2.value.get('num'), 100);
+            assert.strictEqual(result2.messages, undefined);
 
             done();
         });

@@ -91,54 +91,54 @@ describe('Schema validator test mutable data', function () {
     describe('schema options', function () {
         var schema2 = new Schema({
             str1:  {
-                type: String,
-                lowercase: true
+                $type: String,
+                $lowercase: true
             },
             str2:  {
-                type: String,
-                uppercase: true,
-                trim: true
+                $type: String,
+                $uppercase: true,
+                $trim: true
             },
             str3:  {
-                type: String,
-                match: /abcd\w+/
+                $type: String,
+                $match: /abcd\w+/
             },
             str4: {
-                type: String,
-                lowercase: true,
-                enum: ['js', 'javascript']
+                $type: String,
+                $lowercase: true,
+                $enum: ['js', 'javascript']
             },
             num1: {
-                type: Number,
-                min: 0
+                $type: Number,
+                $min: 0
             },
             num2: {
-                type: Number,
-                max: 10
+                $type: Number,
+                $max: 10
             },
             num3: {
-                type: Number,
-                min: 5,
-                max: 10
+                $type: Number,
+                $min: 5,
+                $max: 10
             },
             bol: {
-                type: Boolean
+                $type: Boolean
             },
             foo: {
-                type: String,
-                required: true
+                $type: String,
+                $required: true
             },
             bar: {
                 biz: {
-                    type: String,
-                    required: true
+                    $type: String,
+                    $required: true
                 },
                 count: Number
             },
             obj: {
                 votes: {
-                    type: Number,
-                    default: 1
+                    $type: Number,
+                    $default: 1
                 },
                 favs:  Number
             }
@@ -212,8 +212,8 @@ describe('Schema validator test mutable data', function () {
         var schema3 = new Schema({
             foo: {
                 bar: {
-                    type: String,
-                    default: 'bar'
+                    $type: String,
+                    $default: 'bar'
                 },
                 biz: String
             },
@@ -222,6 +222,18 @@ describe('Schema validator test mutable data', function () {
 
         var schema4 = new Schema({
             arr: [schema3]
+        });
+
+        var schema5 = new Schema({
+            str: {
+                $type: String,
+                $uppercase: true
+            },
+            num: Number
+        });
+
+        var schema6 = new Schema({
+            meta: schema5
         });
 
         it('child schema is work', function (done) {
@@ -253,6 +265,15 @@ describe('Schema validator test mutable data', function () {
             assert.strictEqual(result.messages[1].path, 'arr[1].count');
             assert.strictEqual(result.messages[1].originalValue, '122');
             assert.strictEqual(result.messages[1].type, 'warning');
+
+            var result2 = schema6.validator('meta', {
+                str: 'hello',
+                num: 100
+            });
+
+            assert.strictEqual(result2.value.str, 'HELLO');
+            assert.strictEqual(result2.value.num, 100);
+            assert.strictEqual(result2.messages, undefined);
 
             done();
         });

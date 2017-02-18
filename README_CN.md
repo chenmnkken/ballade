@@ -105,6 +105,41 @@ var dispatcher = new Dispatcher();
 ```
 ---
 
+* **Schema()**
+
+用于创建一个 **Schema** 的实例。
+
+```js
+var Schema = require('ballade').Schema;
+
+var schema1 = new Schema({
+    str: String,
+    num: Number,
+    bol: Boolean,
+    date: Date,
+    strArr: [String],
+    numArr: [Number],
+    dateArr: [Date],
+    objArr: [{
+        name: String,
+        title: String
+    }],
+    anyArr: [],
+    anyObj: {},
+    obj: {
+        votes: Number,
+        favs:  Number,
+        foo: {
+            bar: String
+        }
+    }
+});
+```
+
+**Schema** 用于描述存储在 **Store** 中的数据结构，并对存储的数据进行校验，如果校验有问题，则无法存储。查看详细的 [schema 介绍](/schema.md)。
+
+---
+
 * **dispatcher.use(middleware)**
   * `middleware` *Function*
 

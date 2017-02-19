@@ -4,6 +4,7 @@
 
 var copy = require('./copy');
 var Event = require('./event');
+var Cache = require('./cache');
 
 var baseTypes = {
     'string': true,
@@ -19,12 +20,18 @@ var baseTypes = {
  * @param {Object} store schema
  */
 var _MutableStore = function (schema) {
+    var defaultData = schema.defaultData;
     this.store = {};
+    this.cache = {};
     this.schema = schema;
-    var defaultData = this.schema.defaultData;
 
     Object.keys(defaultData).forEach(function (item) {
-        this.store[item] = defaultData[item];
+        if (schema.cacheConfig && schema.cacheConfig[item]) {
+            this.cache[item] = new Cache(schema.cacheConfig[item]);
+        }
+        else {
+            this.store[item] = defaultData[item];
+        }
     }.bind(this));
 };
 
@@ -34,9 +41,10 @@ _MutableStore.prototype = {
      * If the key not in schema, set operation should failed.
      * @param {String} object key
      * @param {Any} data
+     * @param {Boolean} whether update cache
      * @return {String} object key
      */
-    set: function (key, value) {
+    set: function (key, value, fresh) {
         var result = this.schema.validator(key, value);
 
         if (result.messages) {
@@ -51,7 +59,13 @@ _MutableStore.prototype = {
         }
 
         if ('value' in result) {
-            this.store[key] = result.value;
+            if (key in this.cache) {
+                this.cache[key].set(result.value, fresh);
+            }
+            else {
+                this.store[key] = result.value;
+            }
+
             return key;
         }
     },
@@ -60,11 +74,26 @@ _MutableStore.prototype = {
      * Get data from store.
      * If data is reference type, should return copies of data
      * @param {String} object key
+     * @param {String} Cache id
      * @return {Any} data
      */
-    get: function (key) {
-        var result = this.store[key];
-        var type = typeof result;
+    get: function (key, id) {
+        var result;
+        var type;
+
+        if (key in this.cache) {
+            if (id) {
+                result = this.cache[key].get(id);
+            }
+            else {
+                result = this.cache[key].cacheStore;
+            }
+        }
+        else {
+            result = this.store[key];
+        }
+
+        type = typeof result;
 
         if (baseTypes[type]) {
             return result;
@@ -76,10 +105,17 @@ _MutableStore.prototype = {
     /**
      * Delete data from store.
      * @param {String} object key
+     * @param {String} Cache id
      * @return {String} object key
      */
-    delete: function (key) {
-        delete this.store[key];
+    'delete': function (key, id) {
+        if (key in this.cache) {
+            this.cache[key].delete(id);
+        }
+        else {
+            delete this.store[key];
+        }
+
         return key;
     }
 };

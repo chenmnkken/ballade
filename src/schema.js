@@ -2,6 +2,11 @@
 
 // @TODO 性能测试
 
+var accessor = require('./accessor');
+var proxySet = accessor.set;
+var proxyGet = accessor.get;
+var proxyDelete = accessor.delete;
+
 var TYPE = '__schemaType__';
 var HOOK = '__schemaTypeHook__'
 var CONTAINER = '__schemaContainer__';
@@ -17,37 +22,6 @@ var _typeof = function (subject, isImmutable) {
         subject = subject.toJS();
     }
     return toString.call(subject).slice(8, -1);
-};
-
-var proxySet = function (obj, key, value, isImmutable) {
-    if (isImmutable) {
-        obj = obj.set(key, value);
-    }
-    else {
-        obj[key] = value;
-    }
-
-    return obj;
-};
-
-var proxyGet = function (obj, key, isImmutable) {
-    if (isImmutable) {
-        return obj.get(key);
-    }
-
-    return obj[key];
-};
-
-var proxyDelete = function (obj, key, isImmutable) {
-    if (isImmutable) {
-        obj.delete(key);
-    }
-    else if (Array.isArray(obj)) {
-        obj.splice(key, 1);
-    }
-    else {
-        delete obj[key];
-    }
 };
 
 var valueConvertHooks = {
@@ -512,13 +486,19 @@ var basicValidator = function (value, dataType, path) {
     return result;
 };
 
-var Schema = function (schemaData) {
+var Schema = function (schemaData, options) {
+    options = options || {};
     if (_typeof(schemaData) !== 'Object') {
         throw new Error('Schema type must be plain Object');
     }
 
     this.dataTypes = {};
     this.defaultData = {};
+
+    if (options.cache) {
+        this.cacheConfig = options.cache;
+    }
+
     createDataTypes(schemaData, this.dataTypes, this.defaultData);
 };
 

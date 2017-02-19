@@ -2,6 +2,7 @@
 
 var toString = Object.prototype.toString;
 var Event = require('./event');
+var Cache = require('./cache');
 var _Immutable;
 
 if (typeof self !== 'undefined' && self.Immutable) {
@@ -34,12 +35,18 @@ var outputImmutableData = function (data) {
  * @param {Object} store schema
  */
 var _ImmutableStore = function (schema) {
+    var defaultData = schema.defaultData;
     this.store = {};
+    this.cache = {};
     this.schema = schema;
-    var defaultData = this.schema.defaultData;
 
     Object.keys(defaultData).forEach(function (item) {
-        this.store[item] = outputImmutableData(defaultData[item]);
+        if (schema.cacheConfig && schema.cacheConfig[item]) {
+            this.cache[item] = new Cache(schema.cacheConfig[item]);
+        }
+        else {
+            this.store[item] = outputImmutableData(defaultData[item]);
+        }
     }.bind(this));
 };
 
@@ -56,6 +63,7 @@ _ImmutableStore.prototype = {
         var isImmutable = _typeof(value.toJS) === 'Function';
         // value is mutable data or immutable data
         var result = this.schema.validator(key, value, isImmutable);
+        var newValue;
 
         if (result.messages) {
             result.messages.forEach(function (item) {
@@ -70,7 +78,15 @@ _ImmutableStore.prototype = {
 
         if ('value' in result) {
             // meke sure value is immutable for immutable store
-            this.store[key] = isImmutable ? result.value : outputImmutableData(result.value);
+            newValue = isImmutable ? result.value : outputImmutableData(result.value);
+
+            if (key in this.cache) {
+                this.cache[key].set(newValue, fresh, true);
+            }
+            else {
+                this.store[key] = newValue;
+            }
+
             return key;
         }
     },
@@ -81,8 +97,22 @@ _ImmutableStore.prototype = {
      * @param {String} object key
      * @return {Any} data
      */
-    get: function (key) {
-        return this.store[key];
+    get: function (key, id) {
+        var result;
+
+        if (key in this.cache) {
+            if (id) {
+                result = this.cache[key].get(id, true);
+            }
+            else {
+                result = this.cache[key].cacheStore;
+            }
+        }
+        else {
+            result = this.store[key];
+        }
+
+        return result;
     },
 
     /**
@@ -90,8 +120,14 @@ _ImmutableStore.prototype = {
      * @param {String} object key
      * @return {String} object key
      */
-    delete: function (key) {
-        delete this.store[key];
+    'delete': function (key, id) {
+        if (key in this.cache) {
+            this.cache[key].delete(id, true);
+        }
+        else {
+            delete this.store[key];
+        }
+
         return key;
     }
 };

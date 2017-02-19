@@ -3,7 +3,7 @@
 // simple cache module
 
 var accessor = require('./accessor');
-var proxySet = accessor.set;
+var proxyGet = accessor.get;
 
 var MAX_LENGTH = 20;
 

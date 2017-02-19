@@ -58,7 +58,7 @@ _ImmutableStore.prototype = {
      * @param {Any} data
      * @return {String} object key
      */
-    set: function (key, value) {
+    set: function (key, value, fresh) {
         // meke sure value is mutable for input validator
         var isImmutable = _typeof(value.toJS) === 'Function';
         // value is mutable data or immutable data

@@ -111,12 +111,15 @@ var typecast = function (path, value, dataType) {
 
     try {
         result.value = dataType[CONSTRUCTOR](value);
-        result.message = {
-            path: path,
-            originalValue: value,
-            type: 'warning',
-            message: 'Expect type is ' + dataType[TYPE] + ', not ' + _typeof(value)
-        };
+
+        if (dataType[TYPE] !== 'Date') {
+            result.message = {
+                path: path,
+                originalValue: value,
+                type: 'warning',
+                message: 'Expect type is ' + dataType[TYPE] + ', not ' + _typeof(value)
+            };
+        }
     }
     catch (ex) {
         result.message = {

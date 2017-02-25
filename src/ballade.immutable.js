@@ -140,8 +140,7 @@ Dispatcher.prototype = {
         };
 
         proxyStore.mutable.get = store.mutable.get.bind(store.mutable);
-        proxyStore.event.subscribe = store.event.subscribe.bind(store.event);
-        proxyStore.event.unsubscribe = store.event.unsubscribe.bind(store.event);
+        proxyStore.event = store.event;
 
         this.storeQueue.push({
             store: store,
@@ -170,8 +169,7 @@ Dispatcher.prototype = {
         };
 
         proxyStore.immutable.get = store.immutable.get.bind(store.immutable);
-        proxyStore.event.subscribe = store.event.subscribe.bind(store.event);
-        proxyStore.event.unsubscribe = store.event.unsubscribe.bind(store.event);
+        proxyStore.event = store.event;
 
         this.storeQueue.push({
             store: store,

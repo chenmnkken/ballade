@@ -99,13 +99,6 @@ var typecast = function (path, value, dataType) {
     var result = {};
 
     if (value === null || value === undefined) {
-        result.message = {
-            path: path,
-            originalValue: value,
-            type: 'error',
-            message: 'Value is invalid'
-        };
-
         return result;
     }
 
@@ -308,7 +301,10 @@ var objectValidator = function (value, dataType, path, isImmutable) {
         // nested data
         if (itemDataType[CONTAINER]) {
             castResult = self.validator(item, itemValue, isImmutable, itemDataType, itemPath);
-            value = proxySet(value, item, castResult.value, isImmutable);
+
+            if ('value' in castResult) {
+                value = proxySet(value, item, castResult.value, isImmutable);
+            }
 
             if (castResult.messages) {
                 messages = messages.concat(castResult.messages);

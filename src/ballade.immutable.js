@@ -153,15 +153,17 @@ Dispatcher.prototype = {
     /**
      * Create immutable store
      * @param {Object} store schema
+     * @param {Object} store options
      * @param {Object} store callbacks
      * @return {Object} store instance
      */
-    createImmutableStore: function (schema, callbacks) {
+    createImmutableStore: function (schema, options, callbacks) {
         if (!callbacks) {
-            throw new Error('schema must in createImmutableStore arguments');
+            callbacks = options;
+            options = null;
         }
 
-        var store = new ImmutableStore(schema);
+        var store = new ImmutableStore(schema, options);
 
         var proxyStore = {
             immutable: {},

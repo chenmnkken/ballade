@@ -4,11 +4,13 @@
 
 var accessor = {
     set: function (obj, key, value, isImmutable) {
-        if (isImmutable) {
-            obj = obj.set(key, value);
-        }
-        else {
-            obj[key] = value;
+        if (value !== undefined && value !== null) {
+            if (isImmutable) {
+                obj = obj.set(key, value);
+            }
+            else {
+                obj[key] = value;
+            }
         }
 
         return obj;

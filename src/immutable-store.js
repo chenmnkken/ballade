@@ -34,11 +34,12 @@ var outputImmutableData = function (data) {
  * Use to mutable object data, the instance can set/get for plain object.
  * @param {Object} store schema
  */
-var _ImmutableStore = function (schema) {
+var _ImmutableStore = function (schema, options) {
     var defaultData = schema.defaultData;
     this.store = {};
     this.cache = {};
     this.schema = schema;
+    this.options = options;
 
     Object.keys(defaultData).forEach(function (item) {
         if (schema.cacheConfig && schema.cacheConfig[item]) {
@@ -59,11 +60,14 @@ _ImmutableStore.prototype = {
      * @return {String} object key
      */
     set: function (key, value, fresh) {
+        var self = this;
+        var options = this.options;
         // meke sure value is mutable for input validator
         var isImmutable = _typeof(value.toJS) === 'Function';
         // value is mutable data or immutable data
         var result = this.schema.validator(key, value, isImmutable);
         var newValue;
+        var errors = [];
 
         if (result.messages) {
             result.messages.forEach(function (item) {
@@ -72,8 +76,17 @@ _ImmutableStore.prototype = {
                 }
                 else if (item.type === 'error') {
                     console.error('Schema Validation Error: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
+                    errors.push(item);
                 }
             });
+
+            if (options && options.error) {
+                options.error({
+                    key: key,
+                    type: 'SCHEMA_VALIDATION_ERROR',
+                    messages: errors
+                }, self);
+            }
         }
 
         if ('value' in result) {
@@ -139,8 +152,8 @@ _ImmutableStore.prototype = {
  * @immutableStore.immutable: Immutable data
  * @immutableStore.event: Event instance
  */
-var ImmutableStore = function (schema) {
-    this.immutable = new _ImmutableStore(schema);
+var ImmutableStore = function (schema, options) {
+    this.immutable = new _ImmutableStore(schema, options);
     this.event = new Event();
 };
 

@@ -19,11 +19,12 @@ var baseTypes = {
  * Use to mutable object data, the instance can set/get for plain object.
  * @param {Object} store schema
  */
-var _MutableStore = function (schema) {
+var _MutableStore = function (schema, options) {
     var defaultData = schema.defaultData;
     this.store = {};
     this.cache = {};
     this.schema = schema;
+    this.options = options;
 
     Object.keys(defaultData).forEach(function (item) {
         if (schema.cacheConfig && schema.cacheConfig[item]) {
@@ -46,6 +47,7 @@ _MutableStore.prototype = {
      */
     set: function (key, value, fresh) {
         var result = this.schema.validator(key, value);
+        var errors = [];
 
         if (result.messages) {
             result.messages.forEach(function (item) {
@@ -56,6 +58,14 @@ _MutableStore.prototype = {
                     console.error('Schema Validation Error: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
                 }
             });
+
+            if (options && options.error) {
+                options.error({
+                    key: key,
+                    type: 'SCHEMA_VALIDATION_ERROR',
+                    messages: errors
+                }, self);
+            }
         }
 
         if ('value' in result) {
@@ -127,8 +137,8 @@ _MutableStore.prototype = {
  * @mutableStore.mutable: mutableStore data
  * @mutableStore.event: Event instance
  */
-var MutableStore = function (schema) {
-    this.mutable = new _MutableStore(schema);
+var MutableStore = function (schema, options) {
+    this.mutable = new _MutableStore(schema, options);
     this.event = new Event();
 };
 

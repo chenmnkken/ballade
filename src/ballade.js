@@ -124,15 +124,17 @@ Dispatcher.prototype = {
     /**
      * Create mutable store
      * @param {Object} store schema
+     * @param {Object} store options
      * @param {Object} store callbacks
      * @return {Object} proxy store instance, it can not set data, only get data
      */
-    createMutableStore: function (schema, callbacks) {
+    createMutableStore: function (schema, options, callbacks) {
         if (!callbacks) {
-            throw new Error('schema must in createMutableStore arguments');
+            callbacks = options;
+            options = null;
         }
 
-        var store = new MutableStore(schema);
+        var store = new MutableStore(schema, options);
 
         var proxyStore = {
             mutable: {},

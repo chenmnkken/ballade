@@ -1,0 +1,17 @@
+{
+    "extends": "standard",
+    "env": {
+        "node": true
+    },
+    "plugins": [
+        "standard"
+    ],
+    "rules": {
+        "strict": 0,
+        "semi": [2, "always"],
+        "indent": [2, 4, {"SwitchCase": 1}],
+        "brace-style": [2, "stroustrup"],
+        "operator-linebreak": [2, "after"],
+        "generator-star-spacing": [2, {"before": false, "after": true}]
+    }
+}

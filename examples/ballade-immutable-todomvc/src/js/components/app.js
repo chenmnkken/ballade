@@ -1,5 +1,6 @@
-import React, {Component} from 'react';
-import {is} from 'immutable';
+import React, { Component } from 'react';
+import { bindStore, immutableDeepEqual } from 'ballade/src/ballade.immutable';
+import { is } from 'immutable';
 import Footer from './footer';
 import Header from './header';
 import MainSection from './main-section';
@@ -14,31 +15,6 @@ class App extends Component {
     handleFilter = (filter) => {
         this.setState({
             filter
-        });
-    };
-
-    componentDidMount () {
-        todosStore.event.subscribe('todos', this.refreshTodos);
-    };
-
-    componentWillUnmount () {
-        todosStore.event.unsubscribe('todos');
-    };
-
-    shouldComponentUpdate (nextProps, nextState) {
-        const currentState = this.state;
-
-        return Object.keys(nextState).some((item) => (
-            currentState[item] !== nextState[item] &&
-            !is(currentState[item], nextState[item])
-        ));
-    };
-
-    refreshTodos = () => {
-        const $todos = todosStore.immutable.get('todos');
-
-        this.setState({
-            $todos
         });
     };
 
@@ -72,4 +48,12 @@ class App extends Component {
     };
 };
 
-export default App;
+App = bindStore(App, todosStore, {
+    todos (value) {
+        this.setState({
+            $todos: value
+        });
+    }
+});
+
+export default immutableDeepEqual(App);

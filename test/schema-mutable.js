@@ -278,4 +278,34 @@ describe('Schema validator test mutable data', function () {
             done();
         });
     });
+
+    describe('schema default data', function () {
+        it('schema has default data', function (done) {
+            var todoSchema = new Schema({
+                id: {
+                    $type: String,
+                    $default: (+new Date() + Math.floor(Math.random() * 999999)).toString(36)
+                },
+                complete: {
+                    $type: Boolean,
+                    $default: false
+                },
+                text: {
+                    $type: String,
+                    $default: "Ballade Getting Started"
+                }
+            });
+
+            var todosSchema = new Schema({
+                todos: [todoSchema]
+            });
+
+            var todoDefault = todosSchema.defaultData.todos[0];
+
+            assert.strictEqual(typeof todoDefault.id, 'string');
+            assert.strictEqual(todoDefault.complete, false);
+            assert.strictEqual(todoDefault.text, "Ballade Getting Started");
+            done();
+        });
+    });
 });

@@ -12,39 +12,29 @@ Event.prototype = {
      * Publish event
      * @param {String} event type
      */
-    publish: function (type) {
+    publish: function (type, value) {
         this.handlers.forEach(function (item) {
-            if (!item.type) {
-                item.handler(type);
-            }
-            else if (item.type === type) {
-                item.handler(type);
+            if (item.type === type) {
+                item.handler(value);
             }
         });
     },
 
     /**
      * Subscribe event
-     * @param {String} event type, it can be ignored
+     * @param {String} event type
      * @param {Function} event handler
      */
     subscribe: function (type, handler) {
-        var result = {};
-
-        if (typeof type === 'function') {
-            result.handler = type;
-        }
-        else {
-            result.handler = handler;
-            result.type = type;
-        }
-
-        this.handlers.push(result);
+        this.handlers.push({
+            type: type,
+            handler: handler
+        });
     },
 
     /**
      * Cancel subscribe event
-     * @param {String} event type, it optional
+     * @param {String} event type
      * @param {Function} event handler
      */
     unsubscribe: function (type, handler) {
@@ -60,19 +50,14 @@ Event.prototype = {
         for (; i < this.handlers.length; i++) {
             item = this.handlers[i];
 
-            if (!item.type) {
-                flag = item.handler === handler;
+            if (type && handler) {
+                flag = item.type === type && item.handler === handler;
             }
-            else {
-                if (type && handler) {
-                    flag = item.type === type && item.handler === handler;
-                }
-                else if (type) {
-                    flag = item.type === type;
-                }
-                else if (handler) {
-                    flag = item.handler === handler;
-                }
+            else if (type) {
+                flag = item.type === type;
+            }
+            else if (handler) {
+                flag = item.handler === handler;
             }
 
             if (flag) {

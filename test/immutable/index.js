@@ -15,7 +15,7 @@ describe('Ballade immutable test', function () {
                     var title = store1.immutable.get('title');
 
                     assert.strictEqual(title, 'foo is done');
-                    store1.event.unsubscribe('title');
+                    store1.event.unsubscribe('title', firstUpdate);
                     done();
                 };
 
@@ -27,17 +27,15 @@ describe('Ballade immutable test', function () {
         describe('upTitle action 2', function () {
             it('should return: [bar is done]', function (done) {
                 var secondUpdate = function (key) {
-                    if (key === 'title') {
-                        var title = store1.immutable.get('title');
+                    var title = store1.immutable.get('title');
 
-                        assert.strictEqual(title, 'bar is done');
-                        store1.event.unsubscribe(secondUpdate);
-                        done();
-                    }
+                    assert.strictEqual(title, 'bar is done');
+                    store1.event.unsubscribe(secondUpdate);
+                    done();
                 };
 
                 setTimeout(function () {
-                    store1.event.subscribe(secondUpdate);
+                    store1.event.subscribe('title', secondUpdate);
                     actions1.updateTitle('bar');
                 }, 1000);
             });
@@ -142,6 +140,27 @@ describe('Ballade immutable test', function () {
                 store2.event.subscribe('greetings', sayHello);
                 actions1.sayHello('Hello');
             });
+        });
+    });
+
+    describe('cache for store', function () {
+        it('should cache 10 users in store', function (done) {
+            var i = 0;
+
+            for (; i < 12; i++) {
+                actions1.addUser({
+                    id: i,
+                    name: 'Xiaoming Li0' + (i + 1)
+                });
+            }
+
+            var users = store1.immutable.get('users');
+            var user = store1.immutable.get('users', 5);
+
+            assert.strictEqual(users.length, 10);
+            assert.strictEqual(user.get('id'), 5);
+            assert.strictEqual(user.get('name'), 'Xiaoming Li06');
+            done();
         });
     });
 });

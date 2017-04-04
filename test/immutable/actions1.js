@@ -22,6 +22,13 @@ var actions = dispatcher.createActions({
             type: 'immutable-test/say-hello',
             greetings: greetings
         }
+    },
+
+    addUser: function (user) {
+        return {
+            type: 'immutable-test/add-user',
+            user: user
+        }
     }
 });
 

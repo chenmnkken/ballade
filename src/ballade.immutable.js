@@ -11,10 +11,14 @@ var Queue = require('./queue');
 var Schema = require('./schema');
 var MutableStore = require('./mutable-store');
 var ImmutableStore = require('./immutable-store');
+var bindStore = require('./bindstore');
+var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
     version: '1.0.0',
-    Schema: Schema
+    Schema: Schema,
+    bindStore: bindStore,
+    immutableDeepEqual: immutableDeepEqual
 };
 
 /**
@@ -38,15 +42,9 @@ Dispatcher.prototype = {
     __invokeCallback__: function (payload) {
         this.storeQueue.forEach(function (item) {
             var callback = item.callbacks[payload.type];
-            var result;
-            var changeKey;
 
             if (typeof callback === 'function') {
-                result = callback(item.store, payload);
-
-                if (result !== undefined) {
-                    item.store.event.publish(result);
-                }
+                callback(item.store, payload);
             }
         });
     },
@@ -69,7 +67,6 @@ Dispatcher.prototype = {
      * @param {Object} action
      */
     __dispatch__: function (actionsId, action) {
-        var self = this;
         var payload = action();
         var actionTypes = this.actionTypes;
         var actionType = payload.type;
@@ -107,11 +104,11 @@ Dispatcher.prototype = {
         for (name in actionCreators) {
             creator = actionCreators[name];
 
-            actions[name] = (function(creator, actionsId) {
+            actions[name] = (function (creator, actionsId) {
                 return function () {
                     var args = arguments;
 
-                    self.__dispatch__(actionsId, function (){
+                    self.__dispatch__(actionsId, function () {
                         return creator.apply(null, Array.prototype.slice.call(args));
                     });
                 };

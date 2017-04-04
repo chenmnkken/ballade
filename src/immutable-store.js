@@ -1,8 +1,11 @@
 'use strict';
 
+/* global self */
+
 var toString = Object.prototype.toString;
 var Event = require('./event');
 var Cache = require('./cache');
+var persistence = require('./persistence');
 var _Immutable;
 
 if (typeof self !== 'undefined' && self.Immutable) {
@@ -35,20 +38,46 @@ var outputImmutableData = function (data) {
  * @param {Object} store schema
  */
 var _ImmutableStore = function (schema, options) {
-    var defaultData = schema.defaultData;
+    options = options || {};
     this.store = {};
     this.cache = {};
     this.schema = schema;
+    this.event = new Event();
     this.options = options;
 
-    Object.keys(defaultData).forEach(function (item) {
-        if (schema.cacheConfig && schema.cacheConfig[item]) {
-            this.cache[item] = new Cache(schema.cacheConfig[item]);
+    var defaultData = schema.defaultData;
+    var cacheOptions = options.cache;
+    var self = this;
+
+    Object.keys(schema.dataTypes).forEach(function (key) {
+        var hasCache = cacheOptions && key in cacheOptions;
+        var hasIdCache = false;
+        var value;
+
+        if (hasCache && cacheOptions[key].id) {
+            self.cache[key] = new Cache(cacheOptions[key]);
+            hasIdCache = true;
         }
-        else {
-            this.store[item] = outputImmutableData(defaultData[item]);
+
+        if (hasCache && cacheOptions[key].persistence) {
+            value = persistence.get(cacheOptions[key].persistence.prefix + '.' + key, cacheOptions[key].persistence.type);
         }
-    }.bind(this));
+
+        if (!value) {
+            value = defaultData[key];
+        }
+
+        if (value) {
+            value = outputImmutableData(value);
+
+            if (hasIdCache) {
+                self.cache[key].set(value, true, true);
+            }
+            else {
+                self.store[key] = value;
+            }
+        }
+    });
 };
 
 _ImmutableStore.prototype = {
@@ -62,6 +91,7 @@ _ImmutableStore.prototype = {
     set: function (key, value, fresh) {
         var self = this;
         var options = this.options;
+        var cacheOptions = options.cache;
         // meke sure value is mutable for input validator
         var isImmutable = _typeof(value.toJS) === 'Function';
         // value is mutable data or immutable data
@@ -80,7 +110,7 @@ _ImmutableStore.prototype = {
                 }
             });
 
-            if (options && options.error) {
+            if (options.error) {
                 options.error({
                     key: key,
                     type: 'SCHEMA_VALIDATION_ERROR',
@@ -100,6 +130,16 @@ _ImmutableStore.prototype = {
                 this.store[key] = newValue;
             }
 
+            if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+                persistence.set(
+                    cacheOptions[key].persistence.prefix + '.' + key,
+                    newValue,
+                    cacheOptions[key].persistence.type,
+                    isImmutable
+                );
+            }
+
+            this.event.publish(key, newValue);
             return key;
         }
     },
@@ -134,11 +174,20 @@ _ImmutableStore.prototype = {
      * @return {String} object key
      */
     'delete': function (key, id) {
-        if (key in this.cache) {
+        var cacheOptions = this.options.cache;
+
+        if (id && key in this.cache) {
             this.cache[key].delete(id, true);
         }
         else {
             delete this.store[key];
+        }
+
+        if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+            persistence.delete(
+                cacheOptions[key].persistence.prefix + '.' + key,
+                cacheOptions[key].persistence.type
+            );
         }
 
         return key;
@@ -148,13 +197,16 @@ _ImmutableStore.prototype = {
 /**
  * ImmutableStore Class
  * @param {Object} store schema
+ * @param {Object} store options
+ * options.cache set cache in store
+ * options.error schema validator error
  * var immutableStore = new ImmutableStore({foo: 'bar'});
  * @immutableStore.immutable: Immutable data
  * @immutableStore.event: Event instance
  */
 var ImmutableStore = function (schema, options) {
     this.immutable = new _ImmutableStore(schema, options);
-    this.event = new Event();
+    this.event = this.immutable.event;
 };
 
 module.exports = ImmutableStore;

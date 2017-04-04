@@ -7,12 +7,14 @@
     "react",
     "action",
     "store",
+    "cache",
     "immutable",
-    "dispatcher"
+    "dispatch"
   ],
   "main": "src/ballade.js",
   "scripts": {
     "build": "./node_modules/.bin/gulp",
+    "lint": "./node_modules/.bin/gulp lint",
     "test": "cd test; ../node_modules/.bin/mocha schema-mutable.js; ../node_modules/.bin/mocha schema-immutable.js; cd ./mutable; ../../node_modules/.bin/mocha index.js; cd ../immutable; ../../node_modules/.bin/mocha index.js"
   },
   "repository": {
@@ -24,7 +26,11 @@
   "license": "MIT",
   "devDependencies": {
     "browserify": "12.0.1",
+    "eslint-config-standard": "7.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "2.1.1",
     "gulp": "3.9.0",
+    "gulp-eslint": "3.0.1",
     "gulp-uglify": "1.5.1",
     "immutable": "3.7.6",
     "mocha": "2.3.4",

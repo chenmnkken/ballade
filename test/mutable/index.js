@@ -25,18 +25,16 @@ describe('Ballade mutable test', function () {
 
         describe('upTitle action 2', function () {
             it('should return: [bar is done]', function (done) {
-                var secondUpdate = function (key) {
-                    if (key === 'title') {
-                        var title = store1.mutable.get('title');
+                var secondUpdate = function () {
+                    var title = store1.mutable.get('title');
 
-                        assert.strictEqual(title, 'bar is done');
-                        store1.event.unsubscribe(secondUpdate);
-                        done();
-                    }
+                    assert.strictEqual(title, 'bar is done');
+                    store1.event.unsubscribe(secondUpdate);
+                    done();
                 };
 
                 setTimeout(function () {
-                    store1.event.subscribe(secondUpdate);
+                    store1.event.subscribe('title', secondUpdate);
                     actions1.updateTitle('bar');
                 }, 1000);
             });
@@ -141,6 +139,27 @@ describe('Ballade mutable test', function () {
                 store2.event.subscribe('greetings', sayHello);
                 actions1.sayHello('Hello');
             });
+        });
+    });
+
+    describe('cache for store', function () {
+        it('should cache 10 users in store', function (done) {
+            var i = 0;
+
+            for (; i < 12; i++) {
+                actions1.addUser({
+                    id: i,
+                    name: 'Xiaoming Li0' + (i + 1)
+                });
+            }
+
+            var users = store1.mutable.get('users');
+            var user = store1.mutable.get('users', 5);
+
+            assert.strictEqual(users.length, 10);
+            assert.strictEqual(user.id, 5);
+            assert.strictEqual(user.name, 'Xiaoming Li06');
+            done();
         });
     });
 });

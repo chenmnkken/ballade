@@ -12,22 +12,39 @@ var musicSchema = new Schema({
 var schema = new Schema({
     title: String,
     playlist: [musicSchema],
-    greetings: String
+    greetings: String,
+    users: {
+        id: Number,
+        name: String
+    }
 });
 
-var store = dispatcher.createImmutableStore(schema, {
+var options = {
+    cache: {
+        users: {
+            id: 'id',
+            maxLength: 10
+        }
+    }
+};
+
+var store = dispatcher.createImmutableStore(schema, options, {
     'immutable-test1/update-title': function (store, action) {
-        return store.immutable.set('title', action.title);
+        store.immutable.set('title', action.title);
     },
 
     'immutable-test1/add-music': function (store, action) {
         var playlist = store.immutable.get('playlist');
         playlist = playlist.push(Immutable.Map(action.music));
-        return store.immutable.set('playlist', playlist);
+        store.immutable.set('playlist', playlist);
     },
 
     'immutable-test/say-hello': function (store, action) {
-        return store.immutable.set('greetings', action.greetings);
+        store.immutable.set('greetings', action.greetings);
+    },
+
+    'immutable-test/add-user': function (store, action) {
+        store.immutable.set('users', action.user);
     }
 });
 

@@ -1,34 +1,19 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+import { bindStore } from 'ballade';
 import Footer from './footer';
 import Header from './header';
 import MainSection from './main-section';
-import todoStore from '../stores/todos';
+import todosStore from '../stores/todos';
 
 class App extends Component {
     state = {
-        todos: todoStore.mutable.get('todos'),
+        todos: todosStore.mutable.get('todos'),
         filter: 'all'
     };
 
     handleFilter = (filter) => {
         this.setState({
             filter
-        });
-    };
-
-    componentDidMount () {
-        todoStore.event.subscribe('todos', this.refreshTodos);
-    };
-
-    componentWillUnmount () {
-        todoStore.event.unsubscribe('todos');
-    };
-
-    refreshTodos = () => {
-        const todos = todoStore.mutable.get('todos');
-
-        this.setState({
-            todos
         });
     };
 
@@ -61,5 +46,13 @@ class App extends Component {
         );
     };
 };
+
+App = bindStore(App, todosStore, {
+    todos (value) {
+        this.setState({
+            todos: value
+        });
+    }
+});
 
 export default App;

@@ -11,23 +11,40 @@ var musicSchema = new Schema({
 var schema = new Schema({
     title: String,
     playlist: [musicSchema],
-    greetings: String
+    greetings: String,
+    users: {
+        id: Number,
+        name: String
+    }
 });
 
-var store = dispatcher.createMutableStore(schema, {
+var options = {
+    cache: {
+        users: {
+            id: 'id',
+            maxLength: 10
+        }
+    }
+};
+
+var store = dispatcher.createMutableStore(schema, options, {
     'mutable-test1/update-title': function (store, action) {
-        return store.mutable.set('title', action.title);
+        store.mutable.set('title', action.title);
     },
 
     'mutable-test1/add-music': function (store, action) {
         var playlist = store.mutable.get('playlist');
         playlist.push(action.music);
 
-        return store.mutable.set('playlist', playlist);
+        store.mutable.set('playlist', playlist);
     },
 
     'mutable-test/say-hello': function (store, action) {
-        return store.mutable.set('greetings', action.greetings);
+        store.mutable.set('greetings', action.greetings);
+    },
+
+    'mutable-test/add-user': function (store, action) {
+        store.mutable.set('users', action.user);
     }
 });
 

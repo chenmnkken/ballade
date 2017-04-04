@@ -22,6 +22,13 @@ var actions = dispatcher.createActions({
             type: 'mutable-test/say-hello',
             greetings: greetings
         }
+    },
+
+    addUser: function (user) {
+        return {
+            type: 'mutable-test/add-user',
+            user: user
+        }
     }
 });
 

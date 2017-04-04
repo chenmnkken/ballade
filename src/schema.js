@@ -1,6 +1,6 @@
 'use strict';
 
-// @TODO 性能测试
+// @TODO String hooks add email、url
 
 var accessor = require('./accessor');
 var proxySet = accessor.set;
@@ -8,7 +8,7 @@ var proxyGet = accessor.get;
 var proxyDelete = accessor.delete;
 
 var TYPE = '__schemaType__';
-var HOOK = '__schemaTypeHook__'
+var HOOK = '__schemaTypeHook__';
 var CONTAINER = '__schemaContainer__';
 var ITEM = '__schemaItem__';
 var CONSTRUCTOR = '__schemaConstructor__';
@@ -195,13 +195,13 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
                 // regist hooks
                 Object.keys(data).forEach(function (subItem) {
                     // filter false hook
-                    if (subItem !== '$type' && data[subItem]) {
+                    if (subItem !== '$type' && (subItem === '$default' || data[subItem])) {
                         dataTypes[item][HOOK].push({
                             key: subItem,
                             value: data[subItem]
                         });
 
-                        if (subItem === 'default') {
+                        if (subItem === '$default') {
                             if (_typeof(data[subItem]) === 'Function') {
                                 if (item === ITEM) {
                                     defaultData.push(data.$default());
@@ -270,7 +270,7 @@ var valueConverter = function (value, dataType) {
             value = converter(value, itemValue);
 
             if (value === undefined) {
-                result.message = 'Value convert faild for `' + itemKey + '` schema options'
+                result.message = 'Value convert faild for `' + itemKey + '` schema options';
             }
         }
     });
@@ -295,7 +295,6 @@ var objectValidator = function (value, dataType, path, isImmutable) {
         var itemPath = path + '.' + item;
         var convertResult;
         var castResult;
-        var convertResult;
         var bakValue;
 
         // nested data
@@ -369,7 +368,6 @@ var arrayValidator = function (value, dataType, path, isImmutable) {
         var itemPath = path + '[' + i + ']';
         var convertResult;
         var castResult;
-        var convertResult;
         var bakValue;
         var validationResult;
 
@@ -485,18 +483,13 @@ var basicValidator = function (value, dataType, path) {
     return result;
 };
 
-var Schema = function (schemaData, options) {
-    options = options || {};
+var Schema = function (schemaData) {
     if (_typeof(schemaData) !== 'Object') {
         throw new Error('Schema type must be plain Object');
     }
 
     this.dataTypes = {};
     this.defaultData = {};
-
-    if (options.cache) {
-        this.cacheConfig = options.cache;
-    }
 
     createDataTypes(schemaData, this.dataTypes, this.defaultData);
 };

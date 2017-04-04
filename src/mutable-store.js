@@ -1,10 +1,11 @@
 'use strict';
 
-// @TODO 保持 console
+/* global self */
 
 var copy = require('./copy');
 var Event = require('./event');
 var Cache = require('./cache');
+var persistence = require('./persistence');
 
 var baseTypes = {
     'string': true,
@@ -20,20 +21,44 @@ var baseTypes = {
  * @param {Object} store schema
  */
 var _MutableStore = function (schema, options) {
-    var defaultData = schema.defaultData;
+    options = options || {};
     this.store = {};
     this.cache = {};
     this.schema = schema;
+    this.event = new Event();
     this.options = options;
 
-    Object.keys(defaultData).forEach(function (item) {
-        if (schema.cacheConfig && schema.cacheConfig[item]) {
-            this.cache[item] = new Cache(schema.cacheConfig[item]);
+    var defaultData = schema.defaultData;
+    var cacheOptions = options.cache;
+    var self = this;
+
+    Object.keys(schema.dataTypes).forEach(function (key) {
+        var hasCache = cacheOptions && key in cacheOptions;
+        var hasIdCache = false;
+        var value;
+
+        if (hasCache && cacheOptions[key].id) {
+            self.cache[key] = new Cache(cacheOptions[key]);
+            hasIdCache = true;
         }
-        else {
-            this.store[item] = defaultData[item];
+
+        if (hasCache && cacheOptions[key].persistence) {
+            value = persistence.get(cacheOptions[key].persistence.prefix + '.' + key, cacheOptions[key].persistence.type);
         }
-    }.bind(this));
+
+        if (!value) {
+            value = defaultData[key];
+        }
+
+        if (value) {
+            if (hasIdCache) {
+                self.cache[key].set(value, true);
+            }
+            else {
+                self.store[key] = value;
+            }
+        }
+    });
 };
 
 _MutableStore.prototype = {
@@ -47,7 +72,10 @@ _MutableStore.prototype = {
      */
     set: function (key, value, fresh) {
         var result = this.schema.validator(key, value);
+        var options = this.options;
+        var cacheOptions = options.cache;
         var errors = [];
+        var newValue;
 
         if (result.messages) {
             result.messages.forEach(function (item) {
@@ -69,13 +97,24 @@ _MutableStore.prototype = {
         }
 
         if ('value' in result) {
+            newValue = result.value;
+
             if (key in this.cache) {
-                this.cache[key].set(result.value, fresh);
+                this.cache[key].set(newValue, fresh);
             }
             else {
-                this.store[key] = result.value;
+                this.store[key] = newValue;
             }
 
+            if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+                persistence.set(
+                    cacheOptions[key].persistence.prefix + '.' + key,
+                    result.value,
+                    cacheOptions[key].persistence.type
+                );
+            }
+
+            this.event.publish(key, newValue);
             return key;
         }
     },
@@ -119,11 +158,20 @@ _MutableStore.prototype = {
      * @return {String} object key
      */
     'delete': function (key, id) {
+        var cacheOptions = this.options.cache;
+
         if (key in this.cache) {
             this.cache[key].delete(id);
         }
         else {
             delete this.store[key];
+        }
+
+        if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+            persistence.delete(
+                cacheOptions[key].persistence.prefix + '.' + key,
+                cacheOptions[key].persistence.type
+            );
         }
 
         return key;
@@ -133,13 +181,16 @@ _MutableStore.prototype = {
 /**
  * MutableStore Class
  * @param {Object} store schema
+ * @param {Object} store options
+ * options.cache set cache in store
+ * options.error schema validator error
  * var mutableStore = new MmutableStore({foo: 'bar'});
  * @mutableStore.mutable: mutableStore data
  * @mutableStore.event: Event instance
  */
 var MutableStore = function (schema, options) {
     this.mutable = new _MutableStore(schema, options);
-    this.event = new Event();
+    this.event = this.mutable.event;
 };
 
 module.exports = MutableStore;

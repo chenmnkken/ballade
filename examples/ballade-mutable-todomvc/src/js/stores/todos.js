@@ -5,16 +5,16 @@ const TODOS = 'todos';
 
 const todoSchema = new Schema({
     id: {
-        type: String,
-        default: (+new Date() + Math.floor(Math.random() * 999999)).toString(36)
+        $type: String,
+        $default: (+new Date() + Math.floor(Math.random() * 999999)).toString(36)
     },
     complete: {
-        type: Boolean,
-        default: false
+        $type: Boolean,
+        $default: false
     },
     text: {
-        type: String,
-        default: "Ballade Getting Started"
+        $type: String,
+        $default: "Ballade Getting Started"
     }
 });
 

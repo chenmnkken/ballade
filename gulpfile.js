@@ -1,11 +1,15 @@
 'use strict'
 
+var path = require('path');
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var gutil = require('gulp-util');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+
+var eslint = require('gulp-eslint');
+var eslintrcPath = path.resolve(__dirname, './eslintrc.json');
 
 var uglifyConfig = {
     compress: {
@@ -69,3 +73,11 @@ gulp.task('default', [
     'build-ballade-immutable',
     'build-ballade-immutable-min'
 ]);
+
+// js lint
+gulp.task('lint', function () {
+    return gulp.src(['./src/**/*.js'])
+        .pipe(eslint(eslintrcPath))
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
+});

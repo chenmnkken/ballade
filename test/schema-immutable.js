@@ -7,7 +7,7 @@ var fromJS = Immutable.fromJS;
 var Map = Immutable.Map;
 var List = Immutable.List;
 
-describe('Schema validator test immutable test', function () {
+describe('Schema validator test immutable data', function () {
     describe('schema validator & cast', function () {
         var schema1 = new Schema({
             str:  String,

@@ -109,23 +109,23 @@ When action is trigger, **Store** need a callback corresponding with action, use
 ## API
 
 * Class
-	* [Ballade.Dispatcher](#Ballade.Dispatcher())
-	* [Ballade.Schema](#Ballade.Schema())
+	* [Ballade.Dispatcher](#balladedispatcher)
+	* [Ballade.Schema](#balladeschema)
 * Dispatcher instance
-	* [dispatcher.use](#dispatcher.use(middleware))
-	* [dispatcher.createActions](#dispatcher.createActions(actionCreators))
-	* [dispatcher.createMutableStore](#dispatcher.createMutableStore(schema [,options], callbacks))
-	* [dispatcher.createImmutableStore](#dispatcher.createImmutableStore(schema [,options], callbacks))
+	* [dispatcher.use](#dispatcherusemiddleware)
+	* [dispatcher.createActions](#dispatchercreateactionsactioncreators)
+	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
+	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#store.set(key, value))
-	* [store.get](#store.get(key [,id]))
-	* [store.delete](#store.delete(key [,id]))
-	* [store.subscribe](#store.subscribe(type, handler))
-	* [store.unsubscribe](#store.unsubscribe(type, handler))
-	* [store.publish](#store.publish(type, value))
+	* [store.set](#storesetkey-value)
+	* [store.get](#storegetkey-id)
+	* [store.delete](#storedeletekey-id)
+	* [store.subscribe](#storesubscribetype-handler)
+	* [store.unsubscribe](#storeunsubscribetype-handler)
+	* [store.publish](#storepublishtype-changedvalue)
 * Others
-	* [Ballade.binStore](#Ballade.bindStore(Component, store, callbacks))
-	* [Ballade.immutableDeepEqual](#Ballade.immutableDeepEqual(Component))
+	* [Ballade.binStore](#balladebindstorecomponent-store-callbacks)
+	* [Ballade.immutableDeepEqual](#balladeimmutabledeepequalcomponent)
 
 ### Ballade.Dispatcher()
 

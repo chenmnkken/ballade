@@ -39,7 +39,7 @@ const getTodoId = ($todos, id) => {
 
 const todosStore = dispatcher.createImmutableStore(todosSchema, {
     [`${TODOS}/${constatns.CREATE}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
 
         $todos = $todos.unshift(Map({
             id: (+new Date() + Math.floor(Math.random() * 999999)).toString(36),
@@ -47,43 +47,43 @@ const todosStore = dispatcher.createImmutableStore(todosSchema, {
             text: action.text
         }));
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     },
 
     [`${TODOS}/${constatns.UPDATE}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
         let index = getTodoId($todos, action.id);
 
         if (index !== undefined) {
             $todos = $todos.setIn([index, 'text'], action.text);
         }
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     },
 
     [`${TODOS}/${constatns.DELETE}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
         let index = getTodoId($todos, action.id);
 
         if (index !== undefined) {
             $todos = $todos.splice(index, 1);
         }
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     },
 
     [`${TODOS}/${constatns.DELETE_COMPLETE}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
 
         $todos = $todos.filter((item) => (
             !item.get('complete')
         ));
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     },
 
     [`${TODOS}/${constatns.TOGGLE}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
         let index = getTodoId($todos, action.id);
         let complete;
 
@@ -92,11 +92,11 @@ const todosStore = dispatcher.createImmutableStore(todosSchema, {
             $todos = $todos.setIn([index, 'complete'], !complete);
         }
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     },
 
     [`${TODOS}/${constatns.TOGGLE_ALL}`]: (store, action) => {
-        let $todos = store.immutable.get('todos');
+        let $todos = store.get('todos');
         const active = $todos.some((item) => !item.get('complete'));
 
         $todos = $todos.update((list) => (
@@ -105,7 +105,7 @@ const todosStore = dispatcher.createImmutableStore(todosSchema, {
             ))
         ));
 
-        store.immutable.set('todos', $todos);
+        store.set('todos', $todos);
     }
 });
 

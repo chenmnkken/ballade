@@ -2,11 +2,13 @@
 
 重新诠释 Flux 的应用架构，在 React 中更便捷的使用单向数据流。
 
+[0.2.x 升级至 1.0](https://github.com/chenmnkken/ballade/blob/master/update-guide_CN.md)
+
 ## 两个版本
 
-[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) 默认情况下, Ballade 提供的 **Store** 的数据是 mutable（可变）的.
+[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) 默认情况下, Ballade 提供的 Store 的数据是 Mutable（可变）的.
 
-[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) 同时也提供了另一个选择, 提供的 **Store** 的数据是 immutable（不可变）的, 但是需要依赖 [immutable-js](https://github.com/facebook/immutable-js).
+[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) 同时也提供了另一个选择, 提供的 Store 的数据是 Immutable（不可变）的, 但是需要依赖 [immutable-js](https://github.com/facebook/immutable-js).
 
 ## 安装
 
@@ -59,45 +61,72 @@ var Dispatcher = Ballade.Dispatcher;
 
 ### Store
 
-**Store** 是一个数据的存储中心，提供了「写入」和「读取」数据的接口，就像一个数据的「访问器」。
+Store 是一个数据的存储中心，提供了「写入」和「读取」数据的接口，就像一个数据的「访问器」。
 
-在 **Views** 或 **Controller-views** （React 组件）中，只能从 **Store** 中「读取」数据，在 **Store Callbacks** 中，才能自由的「写入」和「读取」数据。
+在 Views 或 Controller-views （React 组件）中，只能从 Store 中「读取」数据，在 Store Callbacks 中，才能自由的「写入」和「读取」数据。
 
-当数据变化的时候，**Store** 会发送一个数据变化的事件。
+当数据变化的时候，Store 会发送一个数据变化的事件。
 
-**Store** 的数据「访问器」分为 `mutable`（可变）和 `immutable`（不可变）的两种，分别对应了`mutable` 和 `immutable` 两种不同的数据结构。
+Store 的数据「访问器」分为 Mutable（可变）和 Immutable（不可变）的两种，分别由 `createMutableStore` 和 `createImmutableStore` 方法来创建。
+
+存入到 Store 的数据都要配置 Schema，以对数据进行校验。
+
+Store 提供了 Cache（缓存）模块，便于对数据进行缓存。Cache 模块同时还和 `localStorage`、`sessionStorage` 相结合，做持久化的缓存。
 
 ---
 
 ### Actions
 
-所有的操作，像用户的交互行为或者从服务器获取一个数据，只要会引起数据变化的操作都可以把它看作是一个 **Action**，引起数据变化的操作可以是「写入」或「更新」数据。
+所有的操作，像用户的交互行为或者从服务器获取一个数据，只要会引起数据变化的操作都可以把它看作是一个 Action，引起数据变化的操作可以是「写入」或「更新」数据。
 
-如果想「写入」或「更新」**Store** 中的数据，只能发起一个 **Action**。每个 **Action** 都有一个唯一的 **ActionType** 和 payload 数据，**ActionType** 可以理解为这个 **Action** 唯一的名字，payload 数据就是传递给 **Store** 的数据。
+如果想「写入」或「更新」Store 中的数据，只能发起一个 Action。
+
+每个 Action 都包含一个 ActionType 和 payload。ActionType 是这个 Action 的唯一的名字，payload 数据就是传递给 Store 的数据。
 
 ---
 
 ### Dispatcher
 
-**Dispatcher** 用于连接 **Actions** 和 **Store** 的「调度员」，负责将 **Action** 产生的 payload 数据分发给指定的 **Store**。
+Dispatcher 用于连接 Actions 和 Store 的「调度员」，负责将 Action 产生的 payload 数据分发给指定的 Store。
 
 ---
 
 ### Actions Middleware
 
-在传送 payload 数据到 **Store** 时，可以注册一些中间件来处理 payload 数据，每个中间件会把处理完的 payload 结果再传递给下一个中间件。假如你想从服务器取数据，可以注册一个中间件。
+在传送 payload 数据到 Store 的过程中，可以注册一些中间件来处理 payload 数据，每个中间件会把处理完的 payload 结果再传递给下一个中间件，当所有的中间件都处理完后，才会将数据存入到 Store 中。
+
+比如你想从服务器取数据，可以注册一个中间件来统一处理。
 
 ---
 
 ### Store Callbacks
 
-当 **Action** 触发的时候，**Store** 需要一个与该 **Action** 对应的回调函数来处理 payload 数据，这时可以将数据写入到 **Store** 中。**ActionType** 需要与 **Store** 的回调函数名相对应。
+当 Action 触发的时候，Store 需要一个与该 Action 对应的回调函数来处理 payload 数据，这时可以将数据写入到 Store 中。ActionType 需要与 Store 的回调函数名相对应。
 
 ## API
 
-* **Dispatcher()**
+* Class
+	* [Ballade.Dispatcher](#Ballade.Dispatcher())
+	* [Ballade.Schema](#Ballade.Schema())
+* Dispatcher instance
+	* [dispatcher.use](#dispatcher.use(middleware))
+	* [dispatcher.createActions](#dispatcher.createActions(actionCreators))
+	* [dispatcher.createMutableStore](#dispatcher.createMutableStore(schema [,options], callbacks))
+	* [dispatcher.createImmutableStore](#dispatcher.createImmutableStore(schema [,options], callbacks))
+* Store instance
+	* [store.set](#store.set(key, value))
+	* [store.get](#store.get(key [,id]))
+	* [store.delete](#store.delete(key [,id]))
+	* [store.subscribe](#store.subscribe(type, handler))
+	* [store.unsubscribe](#store.unsubscribe(type, handler))
+	* [store.publish](#store.publish(type, value))
+* Others
+	* [Ballade.binStore](#Ballade.bindStore(Component, store, callbacks))
+	* [Ballade.immutableDeepEqual](#Ballade.immutableDeepEqual(Component))
 
-用于创建一个 **Dispatcher** 的实例。
+### Ballade.Dispatcher()
+
+用于创建一个 Dispatcher 的实例。
 
 ```js
 var Dispatcher = require('ballade').Dispatcher;
@@ -105,9 +134,9 @@ var dispatcher = new Dispatcher();
 ```
 ---
 
-* **Schema()**
+### Ballade.Schema()
 
-用于创建一个 **Schema** 的实例。
+用于创建一个 Schema 的实例。
 
 ```js
 var Schema = require('ballade').Schema;
@@ -136,14 +165,14 @@ var schema1 = new Schema({
 });
 ```
 
-**Schema** 用于描述存储在 **Store** 中的数据结构，并对存储的数据进行校验，如果校验有问题，则无法存储。查看详细的 [schema 介绍](/schema.md)。
+Schema 用于描述存储在 Store 中的数据结构，并对存储的数据进行校验，如果校验有问题，则无法存储。查看详细的 [schema 介绍](https://github.com/chenmnkken/ballade/blob/master/schema_CN.md)。
 
 ---
 
-* **dispatcher.use(middleware)**
+### dispatcher.use(middleware)
   * `middleware` *Function*
 
-注册一个中间件，所有 **Action** 的 payload 数据都会通过中间件，中间件可以注册多个。
+注册一个中间件，所有 Action 的 payload 数据都会通过中间件，中间件可以注册多个。
 
 ```js
 dispatcher.use(function (payload, next) {
@@ -181,10 +210,10 @@ dispatcher.use(function (payload, next) {
 ```
 ---
 
-* **dispatcher.createActions(actionCreators)**
+### dispatcher.createActions(actionCreators)
   * `actionCreators` *Object*
 
-创建一组 **Actions**。
+创建一组 Actions。
 
 ```js
 var actions = dispatcher.ceateActions({
@@ -200,29 +229,32 @@ var actions = dispatcher.ceateActions({
 actions.updateTitle('foo');
 ```
 
-注意: **ActionType** 必须是唯一的，如果有重名，会给出错误提示。如果一个应用比较复杂，为了确保 **ActionType** 不重复，建议使用「伪命名空间」来进行区分， 在 `example/update-title` 中，`example` 就是「伪命名空间」。
+> **注意:** ActionType 必须是唯一的，如果有重名，会给出错误提示。如果一个应用比较复杂，为了确保 ActionType 不重复，建议使用「伪命名空间」来进行区分， 在 `example/update-title` 中，`example` 就是「伪命名空间」。
 
 ---
 
-* **dispatcher.createMutableStore(schema, callbacks)**
-  * `schema` *Object*
+### dispatcher.createMutableStore(schema [,options], callbacks)
+  * `schema` *Schema instance*
+  * `options` *Object* *optional*
   * `callbacks` *Object*
 
-创建一个「可变」的 **Store**。
+用于创建一个 Mutable（可变）的 Store。
 
-`schema` 就是该 **Store** 的数据模型，只有数据的 key 在 `schema` 中，才能对其进行「写入」或「更新」数据，这可以让开发者知道该 **Store** 中有哪些数据，能让数据操作更加清晰透明。
+#### schema
 
-为 **Store** 定义一组 `schema`。
+为 Store 定义一组 Schema。
 
 ```js
-var schema = {
-    title: null,
+var schema = new Schema({
+    title: String,
     meta: {
-        votes: null,
-        favs: null
+        votes: String,
+        favs: String
     }
-};
+});
 ```
+
+#### callbacks
 
 现在让我们创建一个 `exampleStore`：
 
@@ -230,144 +262,191 @@ var schema = {
 var exampleStore = dispatcher.createMutableStore(schema, {
     // 这就是 Store 的回调函数
     'example/update-title': function (store, action) {
-        return store.mutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 ```
 
-`exampleStore` 用于 **Views** 或 **Controller-views**（React 组件）中，并且只能获取数据和接受数据变化的通知，不能「写入」数据（这其实屏蔽了尝试直接向 **Store** 写入和更新数据的可能）。
+`exampleStore` 用于 Views 或 Controller-views（React 组件）中，并且只能获取数据和接受数据变化的通知，不能「写入」数据（这其实屏蔽了尝试直接向 Store 写入和更新数据的可能）。
 
 ```js
 // return title from store
-exampleStore.mutable.get('title');
+exampleStore.get('title');
 // no set method in exampleStore
-console.log(exampleStore.mutable.set) // => undefined
+console.log(exampleStore.set) // => undefined
 ```
 
-在 `example/update-title` 的回调函数中，`store` 可以自由的「写入」和「读取」数据，并且该函数**必须返回 store「写入」或「删除」数据操作的结果**，只有这样 **Store** 才能依赖返回结果来发送数据变更的事件。
+在 `example/update-title` 的回调函数中，store 可以自由的「写入」和「读取」数据。
+
+#### options
+
+创建 Store 的时候，还能通过 `options` 为其指定一些选项。
+
+* `options.error` *Function*
+
+当 Schema 校验错误时会触发该回调函数。
+
+```
+options.error = function (error, store) {
+    console.log(error.key);      // 发生错误的 key
+    console.log(error.type);     // 错误类型
+    console.log(error.messages); // 错误消息
+    console.log(store);  // Store 实例
+};
+```
+
+* `options.cache` *Object*
+
+为数据项配置缓存，详见关于 [cache 的文档](https://github.com/chenmnkken/ballade/blob/master/cache_CN.md)。
 
 ---
 
-* **dispatcher.createImmutableStore(schema, callbacks)**
+### dispatcher.createImmutableStore(schema [,options], callbacks)
   * `schema` *Object*
+  * `options` *Object* *optional*
   * `callbacks` *Object*
 
 ```js
 var exampleStore = dispatcher.createImmutableStore(schema, {
     'example/update-title': function (store, action) {
-        return store.immutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 ```
 
-创建一个「不可变」的 **Store**。
+创建一个 Immutable（不可变）的 Store，参数的使用方法和 `createMutableStore` 一致。
 
-注意：`createImmutableStore` 只定义在了 `ballade.immutable.js` 中，并且需要依赖 [immutable-js](https://github.com/facebook/immutable-js)。
-
----
-
-* **store.mutable**
-
-「可变」数据的访问器。上面的 `exampleStore.mutable` 和 `store.mutable` 都是「可变」数据的访问器。
+> **注意：**`createImmutableStore` 只定义在了 `ballade.immutable.js` 中，并且需要依赖 [immutable-js](https://github.com/facebook/immutable-js)。
 
 ---
 
-* **store.mutable.set(key, value)**
-  * `key` *String*  
+### store.set(key, value)
+  * `key` *String*
   * `value` *Anything*
 
-通过访问器来「写入」数据到 **Store** 中，如果数据的 key 没有在 `schema` 中定义，操作会失败。该方法会返回「写入」数据的 key。
+通过访问器来「写入」数据到 Store 中，如果数据的 `key` 没有在 Schema 中定义，操作会失败。
 
 ```js
-var key = store.mutable.set('title', 'foo');
+var key = store.set('title', 'foo');
 console.log(key) // => 'title'
 ```
 
-注意：「写入」方法只能在 **Store** 的回调函数中使用。
+> **注意**：「写入」方法只能在 Store 的回调函数中使用。
 
 ---
 
-* **store.mutable.get(key)**
-  * `key` *String*  
+### store.get(key [,id])
+  * `key` *String*
+  * `id` *String* *optional*
 
-从 **Store** 中「读取」数据，如果该数据是引用类型（对象或数组），会返回该克隆的数据。
+从 Store 中「读取」数据，如果该数据是引用类型（对象或数组），会返回该克隆的数据。
+
+如果有指定设置缓存，在获取数据的时候需指定缓存 `id`，如果没有指定该参数，会返回所有缓存的数据。
 
 ```js
-var title = store.mutable.get('title');
+var title = store.get('title');
 console.log(title) // => 'foo'
 
 // 如果 title 是一个对象, title = { foo: 'bar' }
 // 会返回 title 的克隆对象
-var title = store.mutable.get('title');
+var title = store.get('title');
 console.log(title.foo) // => 'bar'
 
 title.foo = 'baz';
 console.log(title.foo) // => 'baz'
-
-console.log(store.mutable.get('title').foo) // => 'bar'
+console.log(store.get('title').foo) // => 'bar'
 ```
 
-* **store.mutable.delete(key)**
+> **注意：** 如果 store 是 Immutable 类型（通过 `dispatcher.createImmutableStore` 创建的）的，那么通过 `get` 返回的都会是 Immutable 类型的数据。
+
+---
+
+### store.delete(key [,id])
   * `key` *String*  
+  * `id` *String* *optional*
 
-从 **Store** 中「删除」数据。
+从 Store 中删除数据。
 
----
-
-* **store.immutable**
-
-「不可变」数据的访问器。上面的 `exampleStore.immutable` 和 `store.immutable` 都是「不可变」数据的访问器。
-
-注意：`store.immutable` 访问器只能通过执行 `createImmutableStore` 来创建。
-
-`store.immutable` 访问器只是封装了 `Immutable` 的实例，所以它包含了 `Immutable` 实例的所有原型方法。
-
-```js
-store.immutable.set
-store.immutable.setIn
-store.immutable.get
-store.immutable.getIn
-store.immutable.update
-store.immutbale.updateIn
-...
-```
-
-查看更多的 `Immutable` API 可以直接访问 [Immutable Document](http://facebook.github.io/immutable-js/docs/#/).
+如果有指定设置缓存，在删除数据的时候需指定缓存 `id`。
 
 ---
 
-* **store.event.subscribe(type, handler)**
+### store.subscribe(type, handler)
   * `type` *String* *optional*
   * `handler` *Function*
 
-订阅 **Store** 中的数据变化的事件。`type` 就是事件类型，它是可选的，它和定义在 `schema` 中的数据 key 相对应。`hanlder` 则是数据变化的处理函数。
+订阅 Store 中的数据变化的事件。`type` 就是事件类型，它是可选的，它和定义在 Schema 中的数据 key 相对应。`handler` 则是数据变化的处理函数。
 
 ```js
 // 如果 titile 有变化，回调函数则会执行
-exampleStore.event.subscribe('title', function () {
-    var title = store.mutable.get('title');
-    console.log(title);
-
-    // or
-    var title = store.immutable.get('title');
-    console.log(title);    
+exampleStore.subscribe('title', function (changedValue) {
+    console.log(changedValue); // 返回变化后的 title
 });
 ```
+
+`handler` 的第一个参数是发生变化的数据，与 `publish` 中的 `changedValue` 对应。
+
 ---
 
-* **store.event.unsubscribe(type, handler)**
+### store.unsubscribe(type, handler)
   * `type` *String* *optional*
   * `handler` *Function* *optional*
 
-取消事件订阅，`type` 就是事件类型，它是可选的，它和定义在 `schema` 中的数据 key 相对应。`hanlder` 则是数据变化的处理函数，如果 `type` 不为空，`handler` 也是可选的。
+取消事件订阅，`type` 就是事件类型，它是可选的，它和定义在 Schema 中的数据 key 相对应。`handler` 则是数据变化的处理函数，如果 `type` 不为空，`handler` 也是可选的。
 
 ```js
-exampleStore.event.unsubscribe('title');
+exampleStore.unsubscribe('title');
 ```
 
-### 你其实不需要 `waitFor`
+---
 
-在 Flux 中，它提供了一个 `waitFor` 来处理 **Store** 之间的依赖，这并不是一个好的设计，只会让应用变得更复杂。在 [flux/examples/flux-chat/js/stores/MessageStore.js](https://github.com/facebook/flux/blob/master/examples/flux-chat/js/stores/MessageStore.js#L101) 这个例子中，如果删除下面这行代码，该例子仍然能很好的运行。
+### store.publish(type, changedValue)
+  * `type` *String*
+  * `changedValue` *Anything*
+
+广播一个事件，`type` 就是事件类型，它和定义在 Schema 中的数据 key 相对应。`changedValue`用于在广播事件时向订阅者传递变化的数据。
+
+```js
+exampleStore.publish('title', 'This is changed title');
+```
+
+---
+
+### Ballade.bindStore(Component, store, callbacks)
+
+将 React 组件和 Store 进行绑定，使绑定的组件能响应 Store 的数据变化。
+
+* `Component` *React Component*
+* `store` *Store instance*
+* `callbacks` *Function*
+
+```javascript
+var bindStore = require('ballade').bindStore;
+
+App = bindStore(App, todosStore, {
+    todos: function (value) {
+        this.setState({
+            $todos: value
+        });
+    }
+});
+```
+
+在上面的实例中，`App` 组件在绑定了 `todosStore` 后，当 `todosStore` 中的 `todos` 的数据变化，则会执行对应的回调函数。在该回调函数中，会通过 `value` 向函数传递变化的数据. 在该回调函数中，`this` 指向的是 `App` 实例。
+
+`bindStore` 简化了 React 组件在使用时，需要在 `componentDidMount` 和 `componentWillUnmount` 阶段频繁绑定和解绑 Store 的数据变化的事件。
+
+### Ballade.immutableDeepEqual(Component)
+
+* `Component` *React Component*
+
+`immutableDeepEqual` 方法会对 React 组件的 `shouldComponentUpdate` 方法进行优化，如果组件的 `props` 或 `state` 中有用到 Immutable 的数据，该方法只有在数据变化才会执行组件的 `render` 函数。
+
+仅在 `ballade.immutable.js` 的版本中才有的方法，详见 [http://stylechen.com/react-and-immutable.html](http://stylechen.com/react-and-immutable.html)。
+
+## 你其实不需要 `waitFor`
+
+在 Flux 中，它提供了一个 `waitFor` 来处理 Store 之间的依赖，这并不是一个好的设计，只会让应用变得更复杂。在 [flux/examples/flux-chat/js/stores/MessageStore.js](https://github.com/facebook/flux/blob/master/examples/flux-chat/js/stores/MessageStore.js#L101) 这个例子中，如果删除下面这行代码，该例子仍然能很好的运行。
 
 ```js
 ChatAppDispatcher.waitFor([ThreadStore.dispatchToken]);
@@ -375,20 +454,20 @@ ChatAppDispatcher.waitFor([ThreadStore.dispatchToken]);
 
 当然，这里并不是说 `waitFor` 一无是处，只是它让开发者对 Flux 的理解更加困惑。
 
-在 Ballade 中处理 **Store** 之间的依赖，相当简单，就像你要使用一个变量，那么你得先定义这个变量，它本来就这么简单。
+在 Ballade 中处理 Store 之间的依赖，相当简单，就像你要使用一个变量，那么你得先定义这个变量，它本来就这么简单。
 
 ```js
 var storeA = dispatcher.createMutableStore(schema, {
     'example/update-title': function (store, action) {
-        return store.mutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 
 // 假如 storeB 依赖了 storeA
 var storeB = dispatcher.createMutableStore(schema, {
     'example/update-title': function (store, action) {
-        var title = storeA.mutable.get('title') + '!';
-        return store.mutable.set('title', title);
+        var title = storeA.get('title') + '!';
+        store.set('title', title);
     }
 });
 ```
@@ -419,4 +498,4 @@ $ npm run build
 
 ### License
 
-MIT @ [Yiguo Chan](https://github.com/chenmnkken)
+MIT @ [Yiguo Chen](https://github.com/chenmnkken)

@@ -2,13 +2,15 @@
 
 Reinterpreted Flux application architecture, for unidirectional data flow in React.
 
+[0.2.x update version to 1.0](https://github.com/chenmnkken/ballade/blob/master/update-guide_CN.md)
+
 [中文文档](https://github.com/chenmnkken/ballade/blob/master/README_CN.md)
 
 ## Two version
 
-[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) by default, Ballade provides `store` is mutable.
+[ballade.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.js) by default, Ballade provides Store is mutable.
 
-[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) it also provides another option, `store` is immutable, need dependence [immutable-js](https://github.com/facebook/immutable-js).
+[ballade.immutable.js](https://github.com/chenmnkken/ballade/blob/master/dist/ballade.immutable.js) it also provides another option, Store is immutable, need dependence [immutable-js](https://github.com/facebook/immutable-js).
 
 ## Install
 
@@ -26,7 +28,7 @@ and can be required like this:
 var Dispatcher = require('ballade').Dispatcher;
 ```
 
-Note: if you want use `ballade` & `immutable`, you should install [immutable-js](https://github.com/facebook/immutable-js).
+Notice: if you want use `ballade` & `immutable`, you should install [immutable-js](https://github.com/facebook/immutable-js).
 
 
 ```
@@ -62,33 +64,41 @@ var Dispatcher = Ballade.Dispatcher;
 
 ### Store
 
-**Store** is an storage center of data, provides set and get data interface, just like accessor.
+Store is an storage center of data, provides set and get data interface, just like accessor.
 
-In **Views** or **Controller-views** (React Component), only get data from **Store**. In **Store Callbacks**, can set and get data if you want.
+In Views or Controller-views (React Component), can only get data from Store. In Store Callbacks, both of set and get data from Store.
 
-When data changes, **Store** should publish event for changes.
+If data changed, Store should publish event for data changes.
 
-Accessor of **Store** have mutable and immutable, for mutable data and immutable data.
+There are two types of Store accessor, mutable and immutable, for mutable data and immutable data, respectively by `createMutableStore` and `createImmutableStore` method created.
+
+Data stored in Store must configure Schema, make sure the data is valid.
+
+Store has Cache module, be used for data cache. The Cache module integrates `localStorage` and `sessionStorage` for persistence cache.
 
 ---
 
 ### Actions
 
-All operations, like user interactions or fetch data from server, as long as the data will cause changes in **Store**, it is a **Action**.
+All of operations, like user interactions or fetch data from server, as long as the data will cause changes in Store, the operation as a Action. The operation that causes the data change can be either set or update data.
 
-If you want change data in **Store**, only trigger a **Action**. Every **Action** have a unique **ActionType** and payload, **ActionType** just like **Action** unique name, payload is transfer to **Store** of data.
+If you want change data in Store, can only trigger a Action.
+
+Every Action have includes a unique ActionType and payload, ActionType just like Action unique name, payload data is transfer to Store of data.
 
 ---
 
 ### Dispatcher
 
-**Dispatcher** use to connect **Actions** and **Store**, transfer payload in **Action** to **Store**.
+Dispatcher be used for connect Actions and Store, responsible for transfer payload data from Action to specified Store.
 
 ---
 
 ### Actions Middleware
 
-When transfer payload to **Store**, middleware can process payload, each middleware transfer payload to next middleware when current middleware end processing. If you want fetch data from server, you can register a middleware.
+When transfer payload to Store, middleware can process payload data, each middleware transfer payload data to next middleware when current middleware end processing.
+
+If you want fetch data from server, you can register a middleware.
 
 ---
 
@@ -98,9 +108,28 @@ When action is trigger, **Store** need a callback corresponding with action, use
 
 ## API
 
-* **Dispatcher**
+* Class
+	* [Ballade.Dispatcher](#Ballade.Dispatcher())
+	* [Ballade.Schema](#Ballade.Schema())
+* Dispatcher instance
+	* [dispatcher.use](#dispatcher.use(middleware))
+	* [dispatcher.createActions](#dispatcher.createActions(actionCreators))
+	* [dispatcher.createMutableStore](#dispatcher.createMutableStore(schema [,options], callbacks))
+	* [dispatcher.createImmutableStore](#dispatcher.createImmutableStore(schema [,options], callbacks))
+* Store instance
+	* [store.set](#store.set(key, value))
+	* [store.get](#store.get(key [,id]))
+	* [store.delete](#store.delete(key [,id]))
+	* [store.subscribe](#store.subscribe(type, handler))
+	* [store.unsubscribe](#store.unsubscribe(type, handler))
+	* [store.publish](#store.publish(type, value))
+* Others
+	* [Ballade.binStore](#Ballade.bindStore(Component, store, callbacks))
+	* [Ballade.immutableDeepEqual](#Ballade.immutableDeepEqual(Component))
 
-Main class use to create **Dispatcher** instance.
+### Ballade.Dispatcher()
+
+Main class use to create a Dispatcher instance.
 
 ```js
 var Dispatcher = require('ballade').Dispatcher;
@@ -108,10 +137,45 @@ var dispatcher = new Dispatcher();
 ```
 ---
 
-* **dispatcher.use(middleware)**
+### Ballade.Schema()
+
+Be used for create a Schema instance.
+
+```js
+var Schema = require('ballade').Schema;
+
+var schema1 = new Schema({
+    str: String,
+    num: Number,
+    bol: Boolean,
+    date: Date,
+    strArr: [String],
+    numArr: [Number],
+    dateArr: [Date],
+    objArr: [{
+        name: String,
+        title: String
+    }],
+    anyArr: [],
+    anyObj: {},
+    obj: {
+        votes: Number,
+        favs:  Number,
+        foo: {
+            bar: String
+        }
+    }
+});
+```
+
+The Schema used for describe data structure in Store, and validation data, if the data is invalid, then can't stored. View details about [Schema documentation](https://github.com/chenmnkken/ballade/blob/master/schema.md).
+
+---
+
+### **dispatcher.use(middleware)**
   * `middleware` *Function*
 
-Register a middleware, all payload of **Actions** will through the middleware. Middleware can register multiple.
+Register a middleware, all payload of Actions will through the middleware. Middleware can register multiple.
 
 ```js
 dispatcher.use(function (payload, next) {
@@ -126,7 +190,7 @@ dispatcher.use(function (payload, next) {
 });
 ```
 
-If you need fetch data from server.
+If you need fetch data from server, you should register a middleware.
 
 ```js
 dispatcher.use(function (payload, next) {
@@ -149,10 +213,10 @@ dispatcher.use(function (payload, next) {
 ```
 ---
 
-* **dispatcher.createActions(actionCreators)**
+### **dispatcher.createActions(actionCreators)**
   * `actionCreators` *Object*
 
-Create an group **Actions**.
+Create an group Actions.
 
 ```js
 var actions = dispatcher.ceateActions({
@@ -168,175 +232,225 @@ var actions = dispatcher.ceateActions({
 actions.updateTitle('foo');
 ```
 
-Note: **ActionType** must be unique, if have duplicate will throw Error. if application is complex, make sure the **ActionType** is unique, recommend use pseudo namespace. In `example/update-title` the `example` is namaspace.
+> **Notice:** ActionType must be unique, if have duplicate will throw Error. if application is complex, make sure the ActionType is unique, recommend use pseudo namespace. In `example/update-title` the `example` is namaspace.
 
 ---
 
-* **dispatcher.createMutableStore(schema, callbacks)**
-  * `schema` *Object*
+### dispatcher.createMutableStore(schema [,options], callbacks)
+  * `schema` *Schema instance*
+  * `options` *Object* *optional*
   * `callbacks` *Object*
 
-Create an mutable **Store**.
+Create an mutable Store.
 
-`schema` is data model for **Store**, only key in `schema`, can be set and get data. `Schema` can suggestion to developer this **Store** what have data.
+#### schema
 
-Definition an `schema` for **Store**.
+Definition an Schema for Store.
 
 ```js
-var schema = {
-    title: null,
+var schema = new Schema({
+    title: String,
     meta: {
-        votes: null,
-        favs: null
+        votes: String,
+        favs: String
     }
-};
+});
 ```
 
-Let's create `exampleStore`:
+#### callbacks
+
+Now, let's create `exampleStore`:
 
 ```js
 var exampleStore = dispatcher.createMutableStore(schema, {
     // This is Store callback
     'example/update-title': function (store, action) {
-        return store.mutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 ```
 
-The `exampleStore` is use to **Views** or **Controller-views** (React Component), only get data and subscribe the data changs.
+The `exampleStore` be used for Views or Controller-views (React Component), can only get data and subscribe the data changs, can't stored data in Store.
 
 ```js
 // return title from store
-exampleStore.mutable.get('title');
+exampleStore.get('title');
 // no set method in exampleStore
-console.log(exampleStore.mutable.set) // => undefined
+console.log(exampleStore.set) // => undefined
 ```
 
-In `example/update-title` callback, `store` can set and get data if you want, and this callback **must return store set or delete operations result**, **Store** need the result publish event for changes.
+In `example/update-title` callback, `store` can set and get data if you want.
+
+#### options
+
+When create an Store instance, also specified by options for Store.
+
+* `options.error` *Function*
+
+If Schema validation data error, will trigger this callback function.
+
+```
+options.error = function (error, store) {
+    console.log(error.key);      // error key
+    console.log(error.type);     // error type
+    console.log(error.messages); // error message
+    console.log(store);          // Store instance
+};
+```
+
+* `options.cache` *Object*
+
+Be used for configure cache for data item in Store, view details about [Cache  documentation](https://github.com/chenmnkken/ballade/blob/master/cache.md).
 
 ---
 
-* **dispatcher.createImmutableStore(schema, callbacks)**
-  * `schema` *Object*
+### dispatcher.createImmutableStore(schema, callbacks)
+  * `schema` *Schema instance*
+  * `options` *Object* *optional*
   * `callbacks` *Object*
 
 ```js
 var exampleStore = dispatcher.createImmutableStore(schema, {
     // This is Store callback
     'example/update-title': function (store, action) {
-        return store.immutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 ```
 
-Create an immutable **Store**.
+Create an immutable Store, the params usage method same as `createMutableStore`.
 
-Note: `createImmutableStore` only available in `ballade.immutable.js` and need dependence [immutable-js](https://github.com/facebook/immutable-js).
-
----
-
-* **store.mutable**
-
-Accessor for mutable data, `exampleStore.mutable` and `store.mutable` is accessor for mutable data.
+> **Notice:** `createImmutableStore` only available in `ballade.immutable.js` and need dependence [immutable-js](https://github.com/facebook/immutable-js).
 
 ---
 
-* **store.mutable.set(key, value)**
+### store.set(key, value)
   * `key` *String*  
   * `value` *Anything*
 
-Set data in store, if the key not in schema, set operation should failed. This method will return key.
+Set data in store, if the key not definition in schema, the set operation should failed. This method will return key.
 
 ```js
-var key = store.mutable.set('title', 'foo');
+var key = store.set('title', 'foo');
 console.log(key) // => 'title'
 ```
 
-Note: set method only use in **Store** callback.
+> **Notice:** set method can only use in Store callback.
 
 ---
 
-* **store.mutable.get(key)**
-  * `key` *String*  
+### store.get(key [,id])
+  * `key` *String*
+  * `id` *String* *optional*
 
 Get data from store, If data is reference type (Object or Array), should return copies of data.
 
+If the key has configure the cache, when get data from Store should specify cache `id`, if not specify this param, should return all cached data.
+
 ```js
-var title = store.mutable.get('title');
+var title = store.get('title');
 console.log(title) // => 'foo'
 
 // If title is object, title = { foo: 'bar' }
 // It return copies of object
-var title = store.mutable.get('title');
+var title = store.get('title');
 console.log(title.foo) // => 'bar'
 
 title.foo = 'baz';
 console.log(title.foo) // => 'baz'
-
-console.log(store.mutable.get('title').foo) // => 'bar'
+console.log(store.get('title').foo) // => 'bar'
 ```
+
+> **Notice:** If Store is Immutable type (created by `dispatcher.createImmutableStore`), then return data is Immutable type.
 
 ---
 
-* **store.mutable.get(key)**
+### store.delete(key [,id])
   * `key` *String*  
+  * `id` *String* *optional*
 
 Delete data from **Store**.
 
----
-
-* **store.immutable**
-
-Accessor for immutable data, `exampleStore.immutable` and `store.immutable` is accessor for immutable data.
-
-Note: `store.immutable` accessor only create by `createImmutableStore`.
-
-`store.immutable` accessor just warp a **Immutable** instance, so it include all `Immutable` instance prototype method.
-
-```js
-store.immutable.set
-store.immutable.setIn
-store.immutable.get
-store.immutable.getIn
-store.immutable.update
-store.immutbale.updateIn
-...
-```
-
-More `Immutable` API in [Immtable Document](http://facebook.github.io/immutable-js/docs/#/).
+If the key has configure the cache, when delete data from Store should specify cache `id`.
 
 ---
 
-* **store.event.subscribe(type, handler)**
+### store.subscribe(type, handler)
   * `type` *String* *optional*
   * `handler` *Function*
 
-Subscribe event, `type` is event type, it is optional, it corresponding with key in `schema`. `handler` is handle function for changes.
-
-`exampleStore.event.subscribe` is subscribe the data changes.
+Subscribe event, `type` is event type, it is optional, it corresponding with key in Schema. `handler` is handle function for data changes.
 
 ```js
 // If title is changed, callback will invoke.
-exampleStore.event.subscribe('title', function () {
-    var title = store.mutable.get('title');
-    console.log(title);
-
-    // or
-    var title = store.immutable.get('title');
-    console.log(title);    
+exampleStore.subscribe('title', function (changedValue) {
+    console.log(changedValue);  // should return changed title
 });
 ```
+
+The first argument of `handler` is changed data, corresponding the `changedValue` of `publish` method.
+
 ---
 
-* **store.event.unsubscribe(type, handler)**
+### store.unsubscribe(type, handler)
   * `type` *String* *optional*
   * `handler` *Function* *optional*
 
 Cancel subscribe event, `type` is event type, it is optional. `handler` is handle function for changes, if `type` not empty, `handler` is optional.
 
 ```js
-exampleStore.event.unsubscribe('title');
+exampleStore.unsubscribe('title');
 ```
+
+---
+
+### store.publish(type, changedValue)
+  * `type` *String*
+  * `changedValue` *Anything*
+
+Broadcast an event, `type` is event type, it corresponding with key in Schema.
+
+`changedValue` is used for transmit changed value to event subscriber.
+
+```js
+exampleStore.publish('title', 'This is changed title');
+```
+
+---
+
+### Ballade.bindStore(Component, store, callbacks)
+
+Bind Store for React Component, the binded Component has receive Store data changes.
+
+* `Component` *React Component*
+* `store` *Store instance*
+* `callbacks` *Function*
+
+```javascript
+var bindStore = require('ballade').bindStore;
+
+App = bindStore(App, todosStore, {
+    todos: function (value) {
+        this.setState({
+            $todos: value
+        });
+    }
+});
+```
+
+In above example, `App` Component binded `todosStore`, if `todos` data in  `todosStore` changes, then will trigger callback function. In the callback function, `value` is changed data.
+
+And in this function, `this` pointing Component.
+
+`bindStore` is easy usage in React Component, in `componentDidMount` and `componentWillUnmount` stage of Compoent, don't need bind or unbind data changes event in Store.
+
+### Ballade.immutableDeepEqual(Component)
+
+* `Component` *React Component*
+
+`immutableDeepEqual` method will optimize `shouldComponentUpdate` of React Compoent. If the component `props` or `state` is Immutable data, only the data is real changed, then trigger `render` of component.
+
+> **Notice:** The `immutableDeepEqual` method only definition in `ballade.immutable.js`.
 
 ### No `waitFor`
 
@@ -353,15 +467,15 @@ Dependence between **Store** in Ballade, just like use a variable, you need make
 ```js
 var storeA = dispatcher.createMutableStore(schema, {
     'example/update-title': function (store, action) {
-        return store.mutable.set('title', action.title);
+        store.set('title', action.title);
     }
 });
 
 // If storeB dependence storeA
 var storeB = dispatcher.createMutableStore(schema, {
     'example/update-title': function (store, action) {
-        var title = storeA.mutable.get('title') + '!';
-        return store.mutable.set('title', title);
+        var title = storeA.get('title') + '!';
+        store.set('title', title);
     }
 });
 ```

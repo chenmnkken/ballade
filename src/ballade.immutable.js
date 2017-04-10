@@ -9,7 +9,7 @@
 
 var Queue = require('./queue');
 var Schema = require('./schema');
-var MutableStore = require('./mutable-store');
+var MutableStore = require('./store');
 var ImmutableStore = require('./immutable-store');
 var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
@@ -132,12 +132,11 @@ Dispatcher.prototype = {
         var store = new MutableStore(schema);
 
         var proxyStore = {
-            mutable: {},
-            event: {}
+            get: store.get.bind(store),
+            publish: store.publish.bind(store),
+            subscribe: store.subscribe.bind(store),
+            unsubscribe: store.unsubscribe.bind(store)
         };
-
-        proxyStore.mutable.get = store.mutable.get.bind(store.mutable);
-        proxyStore.event = store.event;
 
         this.storeQueue.push({
             store: store,
@@ -163,12 +162,11 @@ Dispatcher.prototype = {
         var store = new ImmutableStore(schema, options);
 
         var proxyStore = {
-            immutable: {},
-            event: {}
+            get: store.get.bind(store),
+            publish: store.publish.bind(store),
+            subscribe: store.subscribe.bind(store),
+            unsubscribe: store.unsubscribe.bind(store)
         };
-
-        proxyStore.immutable.get = store.immutable.get.bind(store.immutable);
-        proxyStore.event = store.event;
 
         this.storeQueue.push({
             store: store,

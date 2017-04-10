@@ -1,7 +1,6 @@
 'use strict';
 
 var bindStore = function (Component, store, callbacks) {
-    var storeEvent = store.event;
     var originComponentDidMount = Component.prototype.componentDidMount;
     var originComponentWillUnmount = Component.prototype.componentWillUnmount;
     var newCallbacks = {};
@@ -12,7 +11,7 @@ var bindStore = function (Component, store, callbacks) {
 
         callbacksArr.forEach(function (item) {
             newCallbacks[item] = callbacks[item].bind(self);
-            storeEvent.subscribe(item, newCallbacks[item]);
+            store.subscribe(item, newCallbacks[item]);
         });
 
         if (typeof originComponentDidMount === 'function') {
@@ -24,7 +23,7 @@ var bindStore = function (Component, store, callbacks) {
         var self = this;
 
         callbacksArr.forEach(function (item) {
-            storeEvent.unsubscribe(item, newCallbacks[item]);
+            store.unsubscribe(item, newCallbacks[item]);
         });
 
         if (typeof originComponentWillUnmount === 'function') {

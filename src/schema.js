@@ -1,6 +1,7 @@
 'use strict';
 
 // @TODO String hooks add email、url
+// @TODO Array unique
 
 var accessor = require('./accessor');
 var proxySet = accessor.set;

@@ -29,22 +29,22 @@ var options = {
 
 var store = dispatcher.createMutableStore(schema, options, {
     'mutable-test1/update-title': function (store, action) {
-        store.mutable.set('title', action.title);
+        store.set('title', action.title);
     },
 
     'mutable-test1/add-music': function (store, action) {
-        var playlist = store.mutable.get('playlist');
+        var playlist = store.get('playlist');
         playlist.push(action.music);
 
-        store.mutable.set('playlist', playlist);
+        store.set('playlist', playlist);
     },
 
     'mutable-test/say-hello': function (store, action) {
-        store.mutable.set('greetings', action.greetings);
+        store.set('greetings', action.greetings);
     },
 
     'mutable-test/add-user': function (store, action) {
-        store.mutable.set('users', action.user);
+        store.set('users', action.user);
     }
 });
 

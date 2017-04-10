@@ -1,19 +1,19 @@
 # Schema
 
-## 为什么会有 Schema ？
+## Why Schama?
 
-**Schema** 的概念源于数据库中的数据存储，为了确保数据在存储到数据库中的时候数据是「可控」的，可以提交对数据结构和类型进行描述。
+The concept of Schema originates from stored data to database, for reliable data when stored data to database, predefined the data structure and type, only validation data is stored.
 
-在 **Ballade** 应用于前端开发中的时候，我们可以把 **Store** 当作一个简单的前端数据库，界面中所有的数据都是来源于 **Store**，**Schema** 确保了数据库的「写入」是可控的，那么从其中「读取」的数据也会是可控的。如果前端的数据都是可控的话，那么可以确保前端的界面不会因为数据的错误、异常而出现问题。这样一来，数据可控也就意味着界面可控。
+When Ballade used for development App on Browser, we can seen as Store is simply  database, the all data from Store in UI Views, Schema make sure the stored operation is controllable, so get data is controllable too. If the App data is controllable, the UI Views is controllable too.
 
-**Ballade** 的 **Schema** 的设计思想就来源于 [Mongoose Schema](http://mongoosejs.com/docs/schematypes.html)。
+The design idea of Ballade Schema originates from [Mongoose Schema](http://mongoosejs.com/docs/schematypes.html).
 
 
-## Schema 的使用
+## Usage Schema
 
-### 基本使用
+### Basic Usage
 
-**Schema** 的核心功能就是提前定义好数据的结构和数据项的类型。
+The core feature of Schema is definition data structure and type.
 
 ```
 var Schema = require('ballade').Schema;
@@ -42,19 +42,7 @@ var schema1 = new Schema({
 });
 ```
 
-支持如下类型的数据：
-
-* String
-* Number
-* Boolean
-* Date
-* Array
-* Object
-* Mixed
-
-Array 和 Object 是支持嵌套的。Mixed 就是任意类型，使用 Mixed 类型时，**Schema** 将不作任何校验。
-
-对于上面的 schema，实际存储的结果可能是这样的。
+For above Schema instance, in actual storage, the data is should like the below.
 
 ```
 {
@@ -81,17 +69,31 @@ Array 和 Object 是支持嵌套的。Mixed 就是任意类型，使用 Mixed �
 }
 ```
 
-### 类型校验选项
+#### Schema types:
 
-对于类型描述，上面给出的写法是简写的，也可以使用 `$type` 属性来指定。
+* String
+* Number
+* Boolean
+* Date
+* Array
+* Object
+* Mixed
+
+Array and Object both support nested.
+
+Mixed is any type, when used Mixed, Schema should not any validation.
+
+### Types Validation
+
+Above example, can also use `$type`.
 
 ```
-// 简写
+// simply
 new Schema({
 	str: String
 });
 
-// 使用 type 字段
+// $type
 new Schema({
 	str: {
 	    $type: String
@@ -99,67 +101,100 @@ new Schema({
 });
 ```
 
-那么什么情况下该使用 `$type` 呢？Ballade 的 Schema 还内置了其他很多不同的类型校验选项，用来更方便的数据的存储校验。
+What time is use `$type`? Ballade Schema also include others types validation, be used for data stored validation more easily.
 
-如可以指定存储的字符串是小写的。
-
-```
-new Schema({
-	str: {
-	    $type: String,
-	    $lowercase: true   // 设置存储时的字符串是小写的
-	}
-});
-```
-
-那么当写入 `str = 'Hello'` 这种数据时，最终的存储结果就会是 `str === 'hello'`。类型校验选项可以有多个组合使用。如下面就定义了存储时的值既要是小写也没有收尾空格。
+For example, make sure stored string is lowercase letter.
 
 ```
 new Schema({
 	str: {
 	    $type: String,
-	    $lowercase: true,  // 设置存储时的字符串是小写的
-	    $trim: true
+	    $lowercase: true   // configure the lowercase letter
 	}
 });
 ```
 
-不同的数据类型，有不同的类型校验选项，也有一些是通用的校验选项。
+If stored `str = 'Hello'`, the final result is `str: 'hello'`. Types validation can multiple simultaneous use. For below example, the vaule is lowercase letter and trimed.
 
-**通用选项：**
+```
+new Schema({
+	str: {
+	    $type: String,
+	    $lowercase: true,  // configure the lowercase letter
+	    $trim: true        // configure the trim
+	}
+});
+```
 
-* `$required` *Boolean* 指定该字段必须要有值，如果存储时没值将抛出错误；
-* `$default` *Any* 指定该字段默认的值，如果存储时没有指定值将使用默认的值；
-* `$validate` *Function* 自定义校验的方法，存储值时会调用该校验方法；
+Different data type have different types validation auxiliary options. There are also some options is general.
 
-**字符串的选项：**
+**General Options**
 
-* `$lowercase` *Boolean* 指定该字段在存储时转化成小写；
-* `$uppercase` *Boolean* 指定该字段在存储时转化成大写；
-* `$trim` *Boolean* 指定该字段在存储时去掉首位空格；
-* `$match` *Regexp* 指定该字段在存储时必须和给出的正则相匹配；
-* `$enum` *Array* 指定该字段在存储时必须和给出的条件列表相匹配；
+* `$required` *Boolean* 
 
-**数值的选项：**
+Value is required.
 
-* `$min` *Number* 指定该字段在存储时其数值范围不能小于该值；
-* `$max` *Number* 指定该字段在存储时其数值范围不能大于该值；
+* `$default` *Any* 
 
-**日期的选项：**
+Default value.
 
-* `$min` *Date* 指定该字段在存储时其日期时间范围不能小于该值；
-* `$max` *Date* 指定该字段在存储时其日期时间范围不能大于该值；
+* `$validate` *Function* 
 
-### 错误处理
+Custom validation function.
 
-数据存储时如果类型校验不成功，**Schema** 内部会先尝试进行基本的转换，无论转换是否成功都会给出相应的消息提示。，如果转换失败，则会给出 `error` 类型的消息。
+**String Options**
 
-**不同的消息类型：**
+* `$lowercase` *Boolean*
 
-* `warning` 转换成功，则会给出 `warning` 类型的消息，存储可以正常进行；
-* `error` 转换失败，则会给出 `error` 类型的消息，存储不可以正常进行；
+The value is converted to lowercase.
 
-`warning` 类型的消息；
+* `$uppercase` *Boolean*
+
+The value is converted to uppercase.
+
+* `$trim` *Boolean* 
+
+The value is trimed. 
+
+* `$match` *Regexp* 
+
+Match the given regexp expression.
+
+* `$enum` *Array* 
+
+Match the list of conditions.
+
+**Number Options**
+
+* `$min` *Number*
+
+Cannot be less than this value.
+
+* `$max` *Number*
+
+Cannot be greater than this value.
+
+**Date Options**
+
+* `$min` *Date* 
+
+Cannot be less than this date value.
+
+* `$max` *Date* 
+
+Cannot be greater than this value.
+
+### Error Handler
+
+If data invaild, Schema try to convert base type, whether success or failure will give tips. If the convert still failed will throw `error` message.
+
+#### Conversion Message Types
+
+* `warning` Successful conversion will show `warning` type message, the storage can be normal.
+ 
+* `error` Conversion is failed will show `error` type message, the storage is failed too.
+
+`warning` message:
 
 ```
 // schema
@@ -167,12 +202,12 @@ new Schema({
     str: String
 });
 
-// 这种存储场景因为可以转换，会给出 warning 的消息提示
-// str = 2;
-// 结果：str === '2'
+// This storage will throw warning message, but conversion is success.
+// condition: str = 2;
+// result: str === '2';
 ```
 
-`error` 类型的消息；
+`error` message:
 
 ```
 // schema
@@ -180,18 +215,18 @@ new Schema({
     num: Number
 });
 
-// 这种存储场景不能转换，会给出 error 的消息提示
-// num = 'hello';
-// 结果：str === undefined
+// This storage will failed, because conversion is failed.
+// condition: num = 'hello';
+// result: num === undefined;
 ```
 
-对于 `null` 和 `undefined` 的值，则会直接给出 `error` 类型的消息，不能存储。
+The value is `null` or `undefined`, will throw error message, can't be stored.
 
-### 嵌套的 Schema
+### Nested Schema
 
-实际的数据存储场景会比较复杂，为了能满足实际的复杂场景，Schema 支持嵌套，这种情况主要出现在 `Array` 类型和 `Object` 类型的数据存储时。
+The actual storage scenario is more complex, for complex scenario, Schema support nested, be uesd for `Array` and `Object` data type.
 
-简单的类型定义使用下面这种简单的嵌套写法是没有问题的。
+Simply types definition for nested schema.
 
 ```
 new Schema({
@@ -202,7 +237,7 @@ new Schema({
 });
 ```
 
-但是要对每个数组项中的对象的属性使用类型校验选项时就必须要使用 Schema 嵌套了。 
+If want use auxiliary options for types validation, Schema must be nested.
 
 ```
 var childSchema = new Schema({
@@ -217,16 +252,13 @@ var childSchema = new Schema({
 });
 
 var parentSchema = new Schema({
-	objArr: [childSchema]  // 嵌套的 Schema
+	objArr: [childSchema]  // Nested Schema
 });
 ```
 
+### For Immutable Data
 
-### Immutable 类型的数据
-
-Ballade 的 Schema 还支持 Immutable 类型的数据校验，所以在使用 Immutable 的 Store 时可以无障碍的使用 Schema 的。
-
-Mutable 类型和 Immutable 类型的数据在 Schema 的定义上是没有任何区别的。
+Ballade Schema also support immutable data validation. Immutable data validation same as mutable data, there is no difference.
 
 ```
 // schema
@@ -237,15 +269,15 @@ new Schema({
    }
 });
 
-// mutable 数据
+// mutable data
 foo = {
     bar: 'bar',
     biz: 'biz'
-}
+};
 
-// immutable 数据
+// immutable data
 foo = Immutable.Map({
     bar: 'bar',
     biz: 'biz'
-})
+});
 ```

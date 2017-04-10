@@ -12,14 +12,14 @@ describe('Ballade immutable test', function () {
         describe('upTitle action 1', function () {
             it('should return: [foo is done]', function (done) {
                 var firstUpdate = function (key) {
-                    var title = store1.immutable.get('title');
+                    var title = store1.get('title');
 
                     assert.strictEqual(title, 'foo is done');
-                    store1.event.unsubscribe('title', firstUpdate);
+                    store1.unsubscribe('title', firstUpdate);
                     done();
                 };
 
-                store1.event.subscribe('title', firstUpdate);
+                store1.subscribe('title', firstUpdate);
                 actions1.updateTitle('foo');
             });
         });
@@ -27,15 +27,15 @@ describe('Ballade immutable test', function () {
         describe('upTitle action 2', function () {
             it('should return: [bar is done]', function (done) {
                 var secondUpdate = function (key) {
-                    var title = store1.immutable.get('title');
+                    var title = store1.get('title');
 
                     assert.strictEqual(title, 'bar is done');
-                    store1.event.unsubscribe(secondUpdate);
+                    store1.unsubscribe(secondUpdate);
                     done();
                 };
 
                 setTimeout(function () {
-                    store1.event.subscribe('title', secondUpdate);
+                    store1.subscribe('title', secondUpdate);
                     actions1.updateTitle('bar');
                 }, 1000);
             });
@@ -44,7 +44,7 @@ describe('Ballade immutable test', function () {
         describe('addMusic action', function () {
             it('should add music to playlist', function (done) {
                 var handlePlaylist = function (key) {
-                    var playlist = store1.immutable.get('playlist');
+                    var playlist = store1.get('playlist');
                     var newPlaylist;
 
                     assert.strictEqual(playlist.getIn([0, 'name']), 'Ballade No.1');
@@ -56,17 +56,17 @@ describe('Ballade immutable test', function () {
                         musician: 'Bach'
                     }));
 
-                    newPlaylist = store1.immutable.get('playlist');
+                    newPlaylist = store1.get('playlist');
 
                     assert.strictEqual(newPlaylist.size, 1);
                     assert.strictEqual(newPlaylist.getIn([0, 'name']), 'Ballade No.1');
                     assert.strictEqual(newPlaylist.getIn([0, 'musician']), 'Chopin');
 
-                    store1.event.unsubscribe('playlist');
+                    store1.unsubscribe('playlist');
                     done();
                 };
 
-                store1.event.subscribe('playlist', handlePlaylist);
+                store1.subscribe('playlist', handlePlaylist);
 
                 actions1.addMusic({
                     name: 'Ballade No.1',
@@ -80,14 +80,14 @@ describe('Ballade immutable test', function () {
         describe('upTitle action', function () {
             it('should return: [baz is done]', function (done) {
                 var firstUpdate = function (key) {
-                    var title = store2.immutable.get('title');
+                    var title = store2.get('title');
 
                     assert.strictEqual(title, 'baz is done');
-                    store2.event.unsubscribe('title');
+                    store2.unsubscribe('title');
                     done();
                 };
 
-                store2.event.subscribe('title', firstUpdate);
+                store2.subscribe('title', firstUpdate);
                 actions2.updateTitle('baz');
             });
         });
@@ -95,7 +95,7 @@ describe('Ballade immutable test', function () {
         describe('addMusic action', function () {
             it('should add music to playlist', function (done) {
                 var handlePlaylist = function (key) {
-                    var playlist = store2.immutable.get('playlist');
+                    var playlist = store2.get('playlist');
                     var newPlaylist;
 
                     assert.strictEqual(playlist.getIn([0, 'name']), 'Suite No.3 in D');
@@ -106,17 +106,17 @@ describe('Ballade immutable test', function () {
                         musician: 'Chopin'
                     }));
 
-                    newPlaylist = store2.immutable.get('playlist');
+                    newPlaylist = store2.get('playlist');
 
                     assert.strictEqual(newPlaylist.size, 1);
                     assert.strictEqual(newPlaylist.getIn([0, 'name']), 'Suite No.3 in D');
                     assert.strictEqual(newPlaylist.getIn([0, 'musician']), 'Bach');
 
-                    store2.event.unsubscribe('playlist');
+                    store2.unsubscribe('playlist');
                     done();
                 };
 
-                store2.event.subscribe('playlist', handlePlaylist);
+                store2.subscribe('playlist', handlePlaylist);
 
                 actions2.addMusic({
                     name: 'Suite No.3 in D',
@@ -130,14 +130,14 @@ describe('Ballade immutable test', function () {
         describe('say hello action', function () {
             it('should return: [Hello world]', function (done) {
                 var sayHello = function (key) {
-                    var greetings = store2.immutable.get('greetings');
+                    var greetings = store2.get('greetings');
 
                     assert.strictEqual(greetings, 'Hello world');
-                    store2.event.unsubscribe('greetings');
+                    store2.unsubscribe('greetings');
                     done();
                 };
 
-                store2.event.subscribe('greetings', sayHello);
+                store2.subscribe('greetings', sayHello);
                 actions1.sayHello('Hello');
             });
         });
@@ -154,8 +154,8 @@ describe('Ballade immutable test', function () {
                 });
             }
 
-            var users = store1.immutable.get('users');
-            var user = store1.immutable.get('users', 5);
+            var users = store1.get('users');
+            var user = store1.get('users', 5);
 
             assert.strictEqual(users.length, 10);
             assert.strictEqual(user.get('id'), 5);

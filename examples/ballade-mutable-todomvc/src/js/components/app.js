@@ -7,7 +7,7 @@ import todosStore from '../stores/todos';
 
 class App extends Component {
     state = {
-        todos: todosStore.mutable.get('todos'),
+        todos: todosStore.get('todos'),
         filter: 'all'
     };
 

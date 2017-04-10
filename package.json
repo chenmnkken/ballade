@@ -1,6 +1,6 @@
 {
   "name": "ballade",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "For unidirectional data flow.",
   "keywords": [
     "flux",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "browserify": "12.0.1",
     "eslint-config-standard": "7.1.0",
-    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-standard": "2.1.1",
     "gulp": "3.9.0",
     "gulp-eslint": "3.0.1",

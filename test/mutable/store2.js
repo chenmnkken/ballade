@@ -17,19 +17,19 @@ var schema = new Schema({
 
 var store = dispatcher.createMutableStore(schema, {
     'mutable-test2/update-title': function (store, action) {
-        store.mutable.set('title', action.title);
+        store.set('title', action.title);
     },
 
     'mutable-test2/add-music': function (store, action) {
-        var playlist = store.mutable.get('playlist');
+        var playlist = store.get('playlist');
         playlist.push(action.music);
 
-        store.mutable.set('playlist', playlist);
+        store.set('playlist', playlist);
     },
 
     'mutable-test/say-hello': function (store, action) {
-        var greetings = store1.mutable.get('greetings') + ' world';
-        store.mutable.set('greetings', greetings);
+        var greetings = store1.get('greetings') + ' world';
+        store.set('greetings', greetings);
     }
 });
 

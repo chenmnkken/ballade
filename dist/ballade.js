@@ -1,4 +1,46 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Ballade = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+// accessor for mutable/immutable data
+
+var accessor = {
+    set: function (obj, key, value, isImmutable) {
+        if (value !== undefined && value !== null) {
+            if (isImmutable) {
+                obj = obj.set(key, value);
+            }
+            else {
+                obj[key] = value;
+            }
+        }
+
+        return obj;
+    },
+
+    get: function (obj, key, isImmutable) {
+        if (isImmutable) {
+            return obj.get(key);
+        }
+
+        return obj[key];
+    },
+
+    'delete': function (obj, key, isImmutable) {
+        if (isImmutable) {
+            obj.delete(key);
+        }
+        else if (Array.isArray(obj)) {
+            obj.splice(key, 1);
+        }
+        else {
+            delete obj[key];
+        }
+    }
+};
+
+module.exports = accessor;
+
+},{}],2:[function(require,module,exports){
 /**
  * Ballade 1.0.0
  * author: chenmnkken@gmail.com
@@ -10,11 +52,13 @@
 
 var Queue = require('./queue');
 var Schema = require('./schema');
-var MutableStore = require('./mutable-store');
+var MutableStore = require('./store');
+var bindStore = require('./bindstore');
 
 var Ballade = {
     version: '1.0.0',
-    Schema: Schema
+    Schema: Schema,
+    bindStore: bindStore
 };
 
 /**
@@ -38,16 +82,9 @@ Dispatcher.prototype = {
     __invokeCallback__: function (payload) {
         this.storeQueue.forEach(function (item) {
             var callback = item.callbacks[payload.type];
-            var result;
-            var changeKey;
 
             if (typeof callback === 'function') {
-                result = callback(item.store, payload);
-
-                // Invoke mutable store callback
-                if (result !== undefined) {
-                    item.store.event.publish(result);
-                }
+                callback(item.store, payload);
             }
         });
     },
@@ -70,7 +107,6 @@ Dispatcher.prototype = {
      * @param {Object} action
      */
     __dispatch__: function (actionsId, action) {
-        var self = this;
         var payload = action();
         var actionTypes = this.actionTypes;
         var actionType = payload.type;
@@ -108,11 +144,11 @@ Dispatcher.prototype = {
         for (name in actionCreators) {
             creator = actionCreators[name];
 
-            actions[name] = (function(creator, actionsId) {
+            actions[name] = (function (creator, actionsId) {
                 return function () {
                     var args = arguments;
 
-                    self.__dispatch__(actionsId, function (){
+                    self.__dispatch__(actionsId, function () {
                         return creator.apply(null, Array.prototype.slice.call(args));
                     });
                 };
@@ -125,24 +161,24 @@ Dispatcher.prototype = {
     /**
      * Create mutable store
      * @param {Object} store schema
+     * @param {Object} store options
      * @param {Object} store callbacks
      * @return {Object} proxy store instance, it can not set data, only get data
      */
-    createMutableStore: function (schema, callbacks) {
+    createMutableStore: function (schema, options, callbacks) {
         if (!callbacks) {
-            throw new Error('schema must in createMutableStore arguments');
+            callbacks = options;
+            options = null;
         }
 
-        var store = new MutableStore(schema);
+        var store = new MutableStore(schema, options);
 
         var proxyStore = {
-            mutable: {},
-            event: {}
+            get: store.get.bind(store),
+            publish: store.publish.bind(store),
+            subscribe: store.subscribe.bind(store),
+            unsubscribe: store.unsubscribe.bind(store)
         };
-
-        proxyStore.mutable.get = store.mutable.get.bind(store.mutable);
-        proxyStore.event.subscribe = store.event.subscribe.bind(store.event);
-        proxyStore.event.unsubscribe = store.event.unsubscribe.bind(store.event);
 
         this.storeQueue.push({
             store: store,
@@ -157,7 +193,127 @@ Ballade.Dispatcher = Dispatcher;
 
 module.exports = Ballade;
 
-},{"./mutable-store":4,"./queue":5,"./schema":6}],2:[function(require,module,exports){
+},{"./bindstore":3,"./queue":8,"./schema":9,"./store":10}],3:[function(require,module,exports){
+'use strict';
+
+var bindStore = function (Component, store, callbacks) {
+    var originComponentDidMount = Component.prototype.componentDidMount;
+    var originComponentWillUnmount = Component.prototype.componentWillUnmount;
+    var newCallbacks = {};
+    var callbacksArr = Object.keys(callbacks);
+
+    Component.prototype.componentDidMount = function (args) {
+        var self = this;
+
+        callbacksArr.forEach(function (item) {
+            newCallbacks[item] = callbacks[item].bind(self);
+            store.subscribe(item, newCallbacks[item]);
+        });
+
+        if (typeof originComponentDidMount === 'function') {
+            originComponentDidMount.apply(self, args);
+        }
+    };
+
+    Component.prototype.componentWillUnmount = function (args) {
+        var self = this;
+
+        callbacksArr.forEach(function (item) {
+            store.unsubscribe(item, newCallbacks[item]);
+        });
+
+        if (typeof originComponentWillUnmount === 'function') {
+            originComponentWillUnmount.apply(self, args);
+        }
+    };
+
+    return Component;
+};
+
+module.exports = bindStore;
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+// simple cache module
+// @TODO add expires options
+
+var accessor = require('./accessor');
+var proxyGet = accessor.get;
+
+var MAX_LENGTH = 20;
+
+var Cache = function (options) {
+    if (!options.id) {
+        throw new Error('Cache must set a ' + options.id);
+    }
+
+    this.id = options.id;
+    this.maxLength = options.maxLength || MAX_LENGTH;
+    this.cacheStore = [];
+};
+
+Cache.prototype = {
+    set: function (value, fresh, isImmutable) {
+        var idKey = this.id;
+        var cacheStore = this.cacheStore;
+        var length = cacheStore.length;
+
+        // update cache
+        if (fresh) {
+            cacheStore.some(function (item, i) {
+                if (proxyGet(item, idKey, isImmutable) === proxyGet(value, idKey, isImmutable)) {
+                    cacheStore[i] = value;
+                    return true;
+                }
+            });
+        }
+        // push cache
+        else {
+            // limit length
+            if (length === this.maxLength) {
+                cacheStore.shift();
+            }
+
+            cacheStore.push(value);
+        }
+    },
+
+    get: function (id, isImmutable) {
+        var cacheStore = this.cacheStore;
+        var i = cacheStore.length - 1;
+        var idKey = this.id;
+        var idValue = id;
+        var item;
+
+        for (; i > -1; i--) {
+            item = cacheStore[i];
+            if (proxyGet(item, idKey, isImmutable) === idValue) {
+                return item;
+            }
+        }
+    },
+
+    'delete': function (id, isImmutable) {
+        var cacheStore = this.cacheStore;
+        var i = cacheStore.length - 1;
+        var idKey = this.id;
+        var idValue = id;
+        var item;
+
+        for (; i > -1; i--) {
+            item = cacheStore[i];
+            if (proxyGet(item, idKey, isImmutable) === idValue) {
+                cacheStore.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+
+module.exports = Cache;
+
+},{"./accessor":1}],5:[function(require,module,exports){
 /*
  * Performs a deep clone of `subject`, returning a duplicate which can be
  * modified freely without affecting `subject`.
@@ -167,28 +323,29 @@ module.exports = Ballade;
  * https://github.com/evlun/copy
  */
 function copy (subject, originals, duplicates) {
-    if (!(subject instanceof Object))
-        return subject
+    if (!(subject instanceof Object)) {
+        return subject;
+    }
 
-    var type = Object.prototype.toString.call(subject).slice(8, -1),
-        duplicate
+    var type = Object.prototype.toString.call(subject).slice(8, -1);
+    var duplicate;
 
     // create the base for our duplicate
     switch (type) {
         case 'Array':
-            duplicate = []
-            break
+            duplicate = [];
+            break;
 
         case 'Date':
-            duplicate = new Date(subject.getTime())
-            break
+            duplicate = new Date(subject.getTime());
+            break;
 
         case 'RegExp':
-            duplicate = new RegExp(subject)
-            break
+            duplicate = new RegExp(subject);
+            break;
 
         case 'Function':
-            break
+            break;
 
         case 'Uint8Array':
         case 'Uint8ClampedArray':
@@ -199,54 +356,54 @@ function copy (subject, originals, duplicates) {
         case 'Int32Array':
         case 'Float32Array':
         case 'Float64Array':
-            duplicate = subject.subarray()
-            break
+            duplicate = subject.subarray();
+            break;
 
         default:
-            duplicate = {}
+            duplicate = {};
     }
 
-    originals.push(subject)
-    duplicates.push(duplicate)
+    originals.push(subject);
+    duplicates.push(duplicate);
 
     // special case for arrays
     if (subject instanceof Array) {
         for (var i = 0; i < subject.length; i++) {
-            duplicate[i] = copy(subject[i], originals, duplicates)
+            duplicate[i] = copy(subject[i], originals, duplicates);
         }
     }
 
-    var keys = Object.keys(subject).sort(),
-        skip = Object.keys(duplicate).sort()
+    var keys = Object.keys(subject).sort();
+    var skip = Object.keys(duplicate).sort();
 
     for (var j = 0; j < keys.length; j++) {
-        var key = keys[j]
+        var key = keys[j];
 
         // ignore keys in `skip`
         if (skip.length > 0 && key === skip[0]) {
-            skip.shift()
-            continue
+            skip.shift();
+            continue;
         }
 
         if (Object.prototype.hasOwnProperty.call(subject, key)) {
-            var value = subject[key],
-                index = originals.indexOf(value)
+            var value = subject[key];
+            var index = originals.indexOf(value);
 
-            duplicate[key] = index !== -1 ? duplicates[index] : copy(subject[key], originals, duplicates)
+            duplicate[key] = index !== -1 ? duplicates[index] : copy(subject[key], originals, duplicates);
         }
     }
 
-    return duplicate
-}
+    return duplicate;
+};
 
 /*
  * Wrapper for `copy()`.
  */
-module.exports = function(subject) {
-    return copy(subject, [], [])
-}
+module.exports = function (subject) {
+    return copy(subject, [], []);
+};
 
-},{}],3:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -261,39 +418,29 @@ Event.prototype = {
      * Publish event
      * @param {String} event type
      */
-    publish: function (type) {
+    publish: function (type, value) {
         this.handlers.forEach(function (item) {
-            if (!item.type) {
-                item.handler(type);
-            }
-            else if (item.type === type) {
-                item.handler(type);
+            if (item.type === type) {
+                item.handler(value);
             }
         });
     },
 
     /**
      * Subscribe event
-     * @param {String} event type, it can be ignored
+     * @param {String} event type
      * @param {Function} event handler
      */
     subscribe: function (type, handler) {
-        var result = {};
-
-        if (typeof type === 'function') {
-            result.handler = type;
-        }
-        else {
-            result.handler = handler;
-            result.type = type;
-        }
-
-        this.handlers.push(result);
+        this.handlers.push({
+            type: type,
+            handler: handler
+        });
     },
 
     /**
      * Cancel subscribe event
-     * @param {String} event type, it optional
+     * @param {String} event type
      * @param {Function} event handler
      */
     unsubscribe: function (type, handler) {
@@ -309,19 +456,14 @@ Event.prototype = {
         for (; i < this.handlers.length; i++) {
             item = this.handlers[i];
 
-            if (!item.type) {
-                flag = item.handler === handler;
+            if (type && handler) {
+                flag = item.type === type && item.handler === handler;
             }
-            else {
-                if (type && handler) {
-                    flag = item.type === type && item.handler === handler;
-                }
-                else if (type) {
-                    flag = item.type === type;
-                }
-                else if (handler) {
-                    flag = item.handler === handler;
-                }
+            else if (type) {
+                flag = item.type === type;
+            }
+            else if (handler) {
+                flag = item.handler === handler;
             }
 
             if (flag) {
@@ -333,13 +475,11 @@ Event.prototype = {
 
 module.exports = Event;
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
-// @TODO 保持 console
-
-var copy = require('./copy');
-var Event = require('./event');
+// persistence for localStorage / sessionStorage
+var PREFIX = 'Ballade.';
 
 var baseTypes = {
     'string': true,
@@ -349,92 +489,67 @@ var baseTypes = {
     'boolean': true
 };
 
-/**
- * Mutable Class
- * Use to mutable object data, the instance can set/get for plain object.
- * @param {Object} store schema
- */
-var _MutableStore = function (schema) {
-    this.store = {};
-    this.schema = schema;
-    var defaultData = this.schema.defaultData;
-
-    Object.keys(defaultData).forEach(function (item) {
-        this.store[item] = defaultData[item];
-    }.bind(this));
-};
-
-_MutableStore.prototype = {
-    /**
-     * Set data in store.
-     * If the key not in schema, set operation should failed.
-     * @param {String} object key
-     * @param {Any} data
-     * @return {String} object key
-     */
-    set: function (key, value) {
-        var result = this.schema.validator(key, value);
-
-        if (result.messages) {
-            result.messages.forEach(function (item) {
-                if (item.type === 'warning') {
-                    console.warn('Schema Validation Warning: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
-                }
-                else if (item.type === 'error') {
-                    console.error('Schema Validation Error: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
-                }
-            });
+var persistence = {
+    set: function (key, value, type, isImmutable) {
+        if (type !== 'localStorage' && type !== 'sessionStorage') {
+            throw new Error('persistence params must be set localStorage or sessionStorage');
         }
 
-        if ('value' in result) {
-            this.store[key] = result.value;
-            return key;
+        key = PREFIX + key;
+        var valueType = typeof value;
+
+        if (baseTypes[valueType]) {
+            value += '';
         }
+        else {
+            if (isImmutable) {
+                value = value.toJS();
+            }
+
+            value = JSON.stringify(value);
+        }
+
+        value = valueType + '@' + value;
+        window[type].setItem(key, value);
     },
 
-    /**
-     * Get data from store.
-     * If data is reference type, should return copies of data
-     * @param {String} object key
-     * @return {Any} data
-     */
-    get: function (key) {
-        var result = this.store[key];
-        var type = typeof result;
-
-        if (baseTypes[type]) {
-            return result;
+    get: function (key, type) {
+        if (type !== 'localStorage' && type !== 'sessionStorage') {
+            throw new Error('persistence type must be set localStorage or sessionStorage');
         }
 
-        return copy(result);
+        key = PREFIX + key;
+        var value = window[type].getItem(key);
+
+        if (!value) {
+            return;
+        }
+
+        var index = value.indexOf('@');
+        var valueType = value.slice(0, index);
+
+        value = value.slice(index + 1);
+
+        if (baseTypes[valueType]) {
+            return value;
+        }
+
+        return JSON.parse(value);
     },
 
-    /**
-     * Delete data from store.
-     * @param {String} object key
-     * @return {String} object key
-     */
-    delete: function (key) {
-        delete this.store[key];
-        return key;
+    'delete': function (key, type) {
+        if (type !== 'localStorage' && type !== 'sessionStorage') {
+            throw new Error('persistence type must be set localStorage or sessionStorage');
+        }
+
+        key = PREFIX + key;
+        window[type].removeItem(key);
     }
 };
 
-/**
- * MutableStore Class
- * @param {Object} store schema
- * var mutableStore = new MmutableStore({foo: 'bar'});
- * @mutableStore.mutable: mutableStore data
- * @mutableStore.event: Event instance
- */
-var MutableStore = function (schema) {
-    this.mutable = new _MutableStore(schema);
-    this.event = new Event();
-};
+module.exports = persistence;
 
-module.exports = MutableStore;
-
-},{"./copy":2,"./event":3}],5:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /**
@@ -470,35 +585,41 @@ Queue.prototype = {
      * Execute workflow
      * @param {Object} workflow function data required
      */
-     execute: function (data, workflows) {
-         workflows = workflows || this.workflows.concat();
-         var workflow;
+    execute: function (data, workflows) {
+        workflows = workflows || this.workflows.concat();
+        var workflow;
 
-         if (workflows.length) {
-             workflow = workflows.shift();
-             workflow(data, this.execute.bind(this, data, workflows));
-         }
-         else {
-             // Get backup, begin loop
-             if (this._workflows) {
-                 this.workflows = this._workflows.concat();
-             }
+        if (workflows.length) {
+            workflow = workflows.shift();
+            workflow(data, this.execute.bind(this, data, workflows));
+        }
+        else {
+            // Get backup, begin loop
+            if (this._workflows) {
+                this.workflows = this._workflows.concat();
+            }
 
-             workflows = null;
-             this.completeCallback(data);
-         }
-     }
+            workflows = null;
+            this.completeCallback(data);
+        }
+    }
 };
 
 module.exports = Queue;
 
-},{}],6:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
-// @TODO 性能测试
+// @TODO String hooks add email、url
+// @TODO Array unique
+
+var accessor = require('./accessor');
+var proxySet = accessor.set;
+var proxyGet = accessor.get;
+var proxyDelete = accessor.delete;
 
 var TYPE = '__schemaType__';
-var HOOK = '__schemaTypeHook__'
+var HOOK = '__schemaTypeHook__';
 var CONTAINER = '__schemaContainer__';
 var ITEM = '__schemaItem__';
 var CONSTRUCTOR = '__schemaConstructor__';
@@ -512,37 +633,6 @@ var _typeof = function (subject, isImmutable) {
         subject = subject.toJS();
     }
     return toString.call(subject).slice(8, -1);
-};
-
-var proxySet = function (obj, key, value, isImmutable) {
-    if (isImmutable) {
-        obj = obj.set(key, value);
-    }
-    else {
-        obj[key] = value;
-    }
-
-    return obj;
-};
-
-var proxyGet = function (obj, key, isImmutable) {
-    if (isImmutable) {
-        return obj.get(key);
-    }
-
-    return obj[key];
-};
-
-var proxyDelete = function (obj, key, isImmutable) {
-    if (isImmutable) {
-        obj.delete(key);
-    }
-    else if (Array.isArray(obj)) {
-        obj.splice(key, 1);
-    }
-    else {
-        delete obj[key];
-    }
 };
 
 var valueConvertHooks = {
@@ -620,24 +710,20 @@ var typecast = function (path, value, dataType) {
     var result = {};
 
     if (value === null || value === undefined) {
-        result.message = {
-            path: path,
-            originalValue: value,
-            type: 'error',
-            message: 'Value is invalid'
-        };
-
         return result;
     }
 
     try {
         result.value = dataType[CONSTRUCTOR](value);
-        result.message = {
-            path: path,
-            originalValue: value,
-            type: 'warning',
-            message: 'Expect type is ' + dataType[TYPE] + ', not ' + _typeof(value)
-        };
+
+        if (dataType[TYPE] !== 'Date') {
+            result.message = {
+                path: path,
+                originalValue: value,
+                type: 'warning',
+                message: 'Expect type is ' + dataType[TYPE] + ', not ' + _typeof(value)
+            };
+        }
     }
     catch (ex) {
         result.message = {
@@ -720,13 +806,13 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
                 // regist hooks
                 Object.keys(data).forEach(function (subItem) {
                     // filter false hook
-                    if (subItem !== '$type' && data[subItem]) {
+                    if (subItem !== '$type' && (subItem === '$default' || data[subItem])) {
                         dataTypes[item][HOOK].push({
                             key: subItem,
                             value: data[subItem]
                         });
 
-                        if (subItem === 'default') {
+                        if (subItem === '$default') {
                             if (_typeof(data[subItem]) === 'Function') {
                                 if (item === ITEM) {
                                     defaultData.push(data.$default());
@@ -795,7 +881,7 @@ var valueConverter = function (value, dataType) {
             value = converter(value, itemValue);
 
             if (value === undefined) {
-                result.message = 'Value convert faild for `' + itemKey + '` schema options'
+                result.message = 'Value convert faild for `' + itemKey + '` schema options';
             }
         }
     });
@@ -820,13 +906,15 @@ var objectValidator = function (value, dataType, path, isImmutable) {
         var itemPath = path + '.' + item;
         var convertResult;
         var castResult;
-        var convertResult;
         var bakValue;
 
         // nested data
         if (itemDataType[CONTAINER]) {
             castResult = self.validator(item, itemValue, isImmutable, itemDataType, itemPath);
-            value = proxySet(value, item, castResult.value, isImmutable);
+
+            if ('value' in castResult) {
+                value = proxySet(value, item, castResult.value, isImmutable);
+            }
 
             if (castResult.messages) {
                 messages = messages.concat(castResult.messages);
@@ -891,7 +979,6 @@ var arrayValidator = function (value, dataType, path, isImmutable) {
         var itemPath = path + '[' + i + ']';
         var convertResult;
         var castResult;
-        var convertResult;
         var bakValue;
         var validationResult;
 
@@ -1014,6 +1101,7 @@ var Schema = function (schemaData) {
 
     this.dataTypes = {};
     this.defaultData = {};
+
     createDataTypes(schemaData, this.dataTypes, this.defaultData);
 };
 
@@ -1058,5 +1146,232 @@ Schema.prototype = {
 
 module.exports = Schema;
 
-},{}]},{},[1])(1)
+},{"./accessor":1}],10:[function(require,module,exports){
+'use strict';
+
+var toString = Object.prototype.toString;
+var copy = require('./copy');
+var Event = require('./event');
+var Cache = require('./cache');
+var persistence = require('./persistence');
+
+var baseTypes = {
+    'string': true,
+    'number': true,
+    'null': true,
+    'undefind': true,
+    'boolean': true
+};
+
+var _typeof = function (subject) {
+    return toString.call(subject).slice(8, -1);
+};
+
+var outputImmutableData = function (data, _Immutable) {
+    var type = _typeof(data);
+
+    if (type === 'Array' || type === 'Object') {
+        return _Immutable.fromJS(data);
+    }
+
+    return data;
+};
+
+/**
+ * Store Class
+ * @param {Object} store schema
+ * @param {Object} store options
+ * options.cache set cache in store
+ * options.error schema validator error
+ * var Store = new MStore({foo: 'bar'});
+ * @Store.mutable: Store data
+ * @Store.event: Event instance
+ */
+var Store = function (schema, options, _Immutable) {
+    Event.call(this);
+    options = options || {};
+
+    var defaultData = schema.defaultData;
+    var cacheOptions = options.cache;
+    var self = this;
+
+    this.store = {};
+    this.cache = {};
+    this.schema = schema;
+    this.Immutable = _Immutable;
+    this.options = options;
+
+    Object.keys(schema.dataTypes).forEach(function (key) {
+        var hasCache = cacheOptions && key in cacheOptions;
+        var hasIdCache = false;
+        var value;
+
+        if (hasCache && cacheOptions[key].id) {
+            self.cache[key] = new Cache(cacheOptions[key]);
+            hasIdCache = true;
+        }
+
+        if (hasCache && cacheOptions[key].persistence) {
+            value = persistence.get(cacheOptions[key].persistence.prefix + '.' + key, cacheOptions[key].persistence.type);
+        }
+
+        if (!value) {
+            value = defaultData[key];
+        }
+
+        if (value) {
+            if (_Immutable) {
+                value = outputImmutableData(value, _Immutable);
+            }
+
+            if (hasIdCache) {
+                self.cache[key].set(value, true);
+            }
+            else {
+                self.store[key] = value;
+            }
+        }
+    });
+};
+
+Store.prototype = Object.create(Event.prototype, {
+    constructor: {
+        value: Store,
+        enumerable: false,
+        writable: true,
+        configurable: true
+    }
+});
+
+/**
+ * Set data in store.
+ * If the key not in schema, set operation should failed.
+ * @param {String} object key
+ * @param {Any} data
+ * @param {Boolean} whether update cache
+ * @return {String} object key
+ */
+Store.prototype.set = function (key, value, fresh) {
+    var options = this.options;
+    var cacheOptions = options.cache;
+    var isImmutable = this.Immutable && _typeof(value.toJS) === 'Function';
+    var result = this.schema.validator(key, value, isImmutable);
+    var errors = [];
+    var newValue;
+
+    if (result.messages) {
+        result.messages.forEach(function (item) {
+            if (item.type === 'warning') {
+                console.warn('Schema Validation Warning: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
+            }
+            else if (item.type === 'error') {
+                console.error('Schema Validation Error: ' + item.message + ', path is `' + item.path + '`, value is ', item.originalValue);
+                errors.push(item);
+            }
+        });
+
+        if (options && options.error) {
+            options.error({
+                key: key,
+                type: 'SCHEMA_VALIDATION_ERROR',
+                messages: errors
+            }, this);
+        }
+    }
+
+    if ('value' in result) {
+        if (this.Immutable) {
+            newValue = isImmutable ? result.value : outputImmutableData(result.value, this.Immutable);
+        }
+        else {
+            newValue = result.value;
+        }
+
+        if (key in this.cache) {
+            this.cache[key].set(newValue, fresh, isImmutable);
+        }
+        else {
+            this.store[key] = newValue;
+        }
+
+        if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+            persistence.set(
+                cacheOptions[key].persistence.prefix + '.' + key,
+                newValue,
+                cacheOptions[key].persistence.type,
+                isImmutable
+            );
+        }
+
+        this.publish(key, newValue);
+        return key;
+    }
+};
+
+/**
+ * Get data from store.
+ * If data is reference type, should return copies of data
+ * @param {String} object key
+ * @param {String} Cache id
+ * @return {Any} data
+ */
+Store.prototype.get = function (key, id) {
+    var isImmutable = !!this.Immutable;
+    var result;
+    var type;
+
+    if (key in this.cache) {
+        if (id) {
+            result = this.cache[key].get(id, isImmutable);
+        }
+        else {
+            result = this.cache[key].cacheStore;
+        }
+    }
+    else {
+        result = this.store[key];
+    }
+
+    if (isImmutable) {
+        return result;
+    }
+
+    type = typeof result;
+
+    if (baseTypes[type]) {
+        return result;
+    }
+
+    return copy(result);
+};
+
+/**
+ * Delete data from store.
+ * @param {String} object key
+ * @param {String} Cache id
+ * @return {String} object key
+ */
+Store.prototype.delete = function (key, id) {
+    var cacheOptions = this.options.cache;
+
+    if (id && key in this.cache) {
+        this.cache[key].delete(id, !!this.Immutable);
+    }
+    else {
+        delete this.store[key];
+    }
+
+    if (cacheOptions && cacheOptions[key] && cacheOptions[key].persistence) {
+        persistence.delete(
+            cacheOptions[key].persistence.prefix + '.' + key,
+            cacheOptions[key].persistence.type
+        );
+    }
+
+    return key;
+};
+
+module.exports = Store;
+
+},{"./cache":4,"./copy":5,"./event":6,"./persistence":7}]},{},[2])(2)
 });

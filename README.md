@@ -2,7 +2,7 @@
 
 Reinterpreted Flux application architecture, for unidirectional data flow in React.
 
-[0.2.x update version to 1.0](https://github.com/chenmnkken/ballade/blob/master/update-guide_CN.md)
+[0.2.x update version to 1.0](https://github.com/chenmnkken/ballade/blob/master/update-guide.md)
 
 [中文文档](https://github.com/chenmnkken/ballade/blob/master/README_CN.md)
 

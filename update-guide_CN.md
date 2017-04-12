@@ -105,7 +105,7 @@ var exampleStore = dispatcher.createImmutableStore(schema, {
 
 在 1.0 的版本中，`publish(type, changedValue)` 中的 `changedValue` 可以将广播事件的时候将变化的数据发送出去，而在 `subscribe(type, handler)` 中的 `handler` 事件处理函数的第一个参数就是 `publish` 传递过来的 `changedValue`。
 
-**8. 增加了 bindStore 方法**
+**8. 增加了 `Ballade.bindStore` 方法**
 
-**9. 增加了 immutableDeepEqual 方法**
+**9. 增加了 `Ballade.immutableDeepEqual` 方法**
 

@@ -165,7 +165,7 @@ var schema1 = new Schema({
 });
 ```
 
-Schema 用于描述存储在 Store 中的数据结构，并对存储的数据进行校验，如果校验有问题，则无法存储。查看详细的 [schema 介绍](https://github.com/chenmnkken/ballade/blob/master/schema_CN.md)。
+Schema 用于描述存储在 Store 中的数据结构，并对存储的数据进行校验，如果校验有问题，则无法存储。查看详细的 [Schema 文档](https://github.com/chenmnkken/ballade/blob/master/schema_CN.md)。
 
 ---
 
@@ -295,7 +295,11 @@ options.error = function (error, store) {
 };
 ```
 
-* `options.cache` *Object*
+* `options.cache` *Object* `options.cache[key]` 这里的 key 需要和 Schema 中的 key 对应。
+* `options.cache[key].id` *String* 缓存的唯一 id，读取数据的时候需要指定对应的 id
+* `options.cache[key].maxLength` *Number* 默认值为 20，缓存数据的最大长度，超过该长度的话会将最先缓存的数据清除，然后再添加新的数据。
+* `options.cache[key].persistence.type` `String` 持久化缓存的类型，目前支持 `localStorage` 和 `sessionStorage`。
+* `options.cache[key].persistence.prefix` `String` 持久化缓存的前缀，添加自定义的前缀可以防止存储 key 的冲突。
 
 为数据项配置缓存，详见关于 [cache 的文档](https://github.com/chenmnkken/ballade/blob/master/cache_CN.md)。
 

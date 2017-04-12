@@ -9,7 +9,7 @@ But in single page web application, if the cache data is not limit, will cause b
 Definition schema.
 
 ```
-const schema1 = new Schema({
+var schema1 = new Schema({
     photo: {
     	id: String,
     	title: String,
@@ -18,7 +18,7 @@ const schema1 = new Schema({
     }
 });
 
-const schema2 = new Schema({
+var schema2 = new Schema({
     avatar: String,
     photos: {
         key: String,
@@ -31,10 +31,11 @@ const schema2 = new Schema({
 Limited data cache length for `photos`, when create Store need configure `cache`  options.
 
 ```
-const options = {
+var options = {
     cache: {
         photos: {
-            id: 'key'  // 'key' is unique id
+            id: 'key',    // 'key' is unique id
+            maxLength: 10 // Limit cache data max length
         }
     }
 };
@@ -45,7 +46,7 @@ In limited data cache length case, need specify a `id` field, and make sure the 
 When create Store just specify the `options`.
 
 ```js
-const store = dispatcher.createImmutableStore(schema2, options, {
+var store = dispatcher.createImmutableStore(schema2, options, {
     'fetch-photos': (store, action) => {
         const photos = action.response.data;
         photos.key = action.key;
@@ -62,6 +63,10 @@ const id = '001';
 store.get('photos', id); => Will output id is 001 data
 ```
 
+通过 `maxLength` 可以限定缓存数据的最大长度，如果超出最大长度，则会采用先进先出的策略，先清除最先缓存的数据，然后才缓存新的数据。
+
+`maxLength` can limit cache data max length, if length is overflow, then remove the first cache data and stored new cache data.
+
 ## Persistent Store
 
 In most cases, signle page web application expect persistent data in local. Persistent cache just used `localStorage` or `sessionStorage`.
@@ -71,7 +76,7 @@ Ballade cache module can persistent data in local, don't operation `localStorage
 For above example, will cache `avatar` data in local, just configure below.
 
 ```
-const options = {
+var options = {
     cache: {
         avatar: {
             persistence: {

@@ -299,6 +299,11 @@ options.error = function (error, store) {
 ```
 
 * `options.cache` *Object*
+* `options.cache` *Object* `options.cache[key]` The key is same as Schema key.
+* `options.cache[key].id` *String* Cache unique id, be used for set or get data from Store.
+* `options.cache[key].maxLength` *Number* Default value is 20, cache data max length, if length is overflow, then remove the first cache data and stored new cache data.
+* `options.cache[key].persistence.type` `String` Persistence cache type, support `localStorage` and `sessionStorage`。
+* `options.cache[key].persistence.prefix` `String` Persistence cache prefix, add custom prefix make sure the key is unique.
 
 Be used for configure cache for data item in Store, view details about [Cache  documentation](https://github.com/chenmnkken/ballade/blob/master/cache.md).
 

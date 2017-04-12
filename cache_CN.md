@@ -9,7 +9,7 @@
 先定义 Schema。
 
 ```
-const schema1 = new Schema({
+var schema1 = new Schema({
     photo: {
     	id: String,
     	title: String,
@@ -18,7 +18,7 @@ const schema1 = new Schema({
     }
 });
 
-const schema2 = new Schema({
+var schema2 = new Schema({
     avatar: String,
     photos: {
         key: String,
@@ -31,7 +31,7 @@ const schema2 = new Schema({
 对 `photos` 的数据进行限制长度的缓存，需要在创建 Store 时设置 `cache` 的配置。
 
 ```
-const options = {
+var options = {
     cache: {
         photos: {
             id: 'key'  // 设置 key 作为缓存的唯一 id
@@ -45,7 +45,7 @@ const options = {
 创建 Store 时传上该配置即可。
 
 ```
-const store = dispatcher.createImmutableStore(schema2, options, {
+var store = dispatcher.createImmutableStore(schema2, options, {
     'fetch-photos': (store, action) => {
         const photos = action.response.data;
         photos.key = action.key;
@@ -60,6 +60,18 @@ const store = dispatcher.createImmutableStore(schema2, options, {
 ```
 const id = '001';
 store.get('photos', id); => 直接输出 001 对应的数据
+```
+
+通过 `maxLength` 可以限定缓存数据的最大长度，如果超出最大长度，则会采用先进先出的策略，先清除最先缓存的数据，然后才缓存新的数据。
+
+```
+var options = {
+    cache: {
+        photos: {
+            id: 'key'  // 设置 key 作为缓存的唯一 id
+        }
+    }
+};
 ```
 
 ## 持久化的 Store
@@ -91,7 +103,7 @@ const options = {
 store.get('avatar'); => 输出 avatar 的持久化缓存数据
 ```
 
-**Note：** 使用 Ballade 向 `localStorage` 存储数据时非常便捷，但也需要考虑应该什么时候清除该数据，以避免持久化缓存的空间无限膨胀。
+**注意：** 使用 Ballade 向 `localStorage` 存储数据时非常便捷，但也需要考虑应该什么时候清除该数据，以避免持久化缓存的空间无限膨胀。
 
 当然，持久化的缓存可以和普通的缓存结合使用。
 

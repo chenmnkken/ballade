@@ -513,4 +513,4 @@ $ npm run build
 
 ### License
 
-MIT @ [Yiguo Chan](https://github.com/chenmnkken)
+MIT @ [Yiguo Chen](https://github.com/chenmnkken)

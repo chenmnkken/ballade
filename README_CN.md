@@ -331,6 +331,8 @@ var key = store.set('title', 'foo');
 console.log(key) // => 'title'
 ```
 
+对于 mutable 的 Store 来说，可以存储 mutable 类型的数据。对于 immutable 类型的 Store 来说，无论是存储 mutable 还是 immutable，都会转化为 immutable 类型的数据，所有最终获取到的数据都是 immutable 类型的。
+
 > **注意**：「写入」方法只能在 Store 的回调函数中使用。
 
 ---
@@ -357,7 +359,7 @@ console.log(title.foo) // => 'baz'
 console.log(store.get('title').foo) // => 'bar'
 ```
 
-> **注意：** 如果 store 是 Immutable 类型（通过 `dispatcher.createImmutableStore` 创建的）的，那么通过 `get` 返回的都会是 Immutable 类型的数据。
+> **注意：** 如果 Store 是 Immutable 类型（通过 `dispatcher.createImmutableStore` 创建的）的，那么通过 `get` 返回的都会是 immutable 类型的数据。
 
 ---
 

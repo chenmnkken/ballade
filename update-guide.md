@@ -89,7 +89,7 @@ var exampleStore = dispatcher.createImmutableStore(schema, {
 
 **5. Schema Feature**
 
-1.0 version [Schema](/schema.md)。
+View details about [Schema documentation](/schema.md).
 
 **6. `createMutableStore` and `createImmutableStore` added `options`**
 
@@ -101,7 +101,7 @@ var exampleStore = dispatcher.createImmutableStore(schema, {
 
 `changedValue` is used for transmit changed value to event subscriber.
 
-**8. Added bindStore method**
+**8. Added `Ballade.bindStore` method**
 
-**9. Added immutableDeepEqual method**
+**9. Added `Ballade.immutableDeepEqual` method**
 

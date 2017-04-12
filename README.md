@@ -335,6 +335,8 @@ var key = store.set('title', 'foo');
 console.log(key) // => 'title'
 ```
 
+For mutable Store, support mutable data stored. For immutable Store, support mutable and immutable data stored, there will converted to immutable data, so get data from Store the type is immutable.
+
 > **Notice:** set method can only use in Store callback.
 
 ---

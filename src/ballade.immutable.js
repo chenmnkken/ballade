@@ -1,7 +1,7 @@
 /**
- * Ballade 1.0.0
+ * Ballade 1.0.2
  * author: chenmnkken@gmail.com
- * date: 2017-02-12
+ * date: 2017-04-15
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -15,7 +15,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.0.0',
+    version: '1.0.1',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual

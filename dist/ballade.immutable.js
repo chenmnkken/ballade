@@ -29,14 +29,16 @@ var accessor = {
 
     'delete': function (obj, key, isImmutable) {
         if (isImmutable) {
-            obj.delete(key);
+            obj = obj.delete(key);
         }
         else if (Array.isArray(obj)) {
-            obj.splice(key, 1);
+            obj = obj.splice(key, 1);
         }
         else {
             delete obj[key];
         }
+
+        return obj;
     }
 };
 
@@ -44,9 +46,9 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.0.0
+ * Ballade 1.0.2
  * author: chenmnkken@gmail.com
- * date: 2017-02-12
+ * date: 2017-04-15
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -60,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.0.0',
+    version: '1.0.1',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -759,6 +761,7 @@ var _typeof = function (subject, isImmutable) {
     if (isImmutable && typeof subject.toJS === 'function') {
         subject = subject.toJS();
     }
+
     return toString.call(subject).slice(8, -1);
 };
 
@@ -1021,12 +1024,24 @@ var objectValidator = function (value, dataType, path, isImmutable) {
     var result = {};
     var messages = [];
     var self = this;
+    var schemaKeysLength = 0;
+    // var valueKeysLength = valueKeys.length;
+    var valueKeys;
 
+    // Object.keys(value).forEach(function (item) {
     Object.keys(dataType).forEach(function (item) {
         // filter private property
         if (item.slice(0, 8) === '__schema') {
             return;
         }
+
+        schemaKeysLength++;
+
+        // If the key not in Schema, delete it
+        // if (!(item in dataType)) {
+        //     delete value[item];
+        //     return;
+        // }
 
         var itemDataType = dataType[item];
         var itemValue = proxyGet(value, item, isImmutable);
@@ -1055,7 +1070,7 @@ var objectValidator = function (value, dataType, path, isImmutable) {
                     value = proxySet(value, item, castResult.value, isImmutable);
                 }
                 else {
-                    proxyDelete(value, item, isImmutable);
+                    value = proxyDelete(value, item, isImmutable);
                 }
 
                 if (castResult.message) {
@@ -1076,11 +1091,34 @@ var objectValidator = function (value, dataType, path, isImmutable) {
                         message: convertResult.message
                     });
 
-                    proxyDelete(value, item, isImmutable);
+                    value = proxyDelete(value, item, isImmutable);
                 }
             }
         }
     });
+
+    if (isImmutable) {
+        value.forEach(function(_, item) {
+            // If the key not in Schema, delete it
+            if (!(item in dataType)) {
+                value = proxyDelete(value, item, true);
+            }
+        });
+    }
+    else {
+        valueKeys = Object.keys(value);
+
+        if (valueKeys.length > schemaKeysLength) {
+            valueKeys.forEach(function (item) {
+                // If the key not in Schema, delete it
+                if (!(item in dataType)) {
+                    delete value[item];
+                }
+            });
+        }
+
+        valueKeys = null;
+    }
 
     result.value = value;
 
@@ -1236,6 +1274,10 @@ Schema.prototype = {
     validator: function (key, value, isImmutable, dataType, path) {
         dataType = dataType || this.dataTypes[key];
         path = path || key;
+
+        if (value === undefined) {
+            return {};
+        }
 
         var containerType = dataType[CONTAINER];
         var type = _typeof(value, isImmutable);

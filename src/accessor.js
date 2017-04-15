@@ -26,14 +26,16 @@ var accessor = {
 
     'delete': function (obj, key, isImmutable) {
         if (isImmutable) {
-            obj.delete(key);
+            obj = obj.delete(key);
         }
         else if (Array.isArray(obj)) {
-            obj.splice(key, 1);
+            obj = obj.splice(key, 1);
         }
         else {
             delete obj[key];
         }
+
+        return obj;
     }
 };
 

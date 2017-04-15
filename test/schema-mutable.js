@@ -34,7 +34,7 @@ describe('Schema validator test mutable data', function () {
                 var objArrResult = schema1.validator('objArr', [{name: 'Ballade', title: 'Ballade test'}]);
                 var anyArrResult = schema1.validator('anyArr', [1, '2', false, {name: 'Ballade', title: 'Ballade test'}]);
                 var anyObjResult = schema1.validator('anyObj', {foo: 'bar', bar: 'biz', age: 23});
-                var objResult = schema1.validator('obj', {votes: 2, favs: 100, foo: {bar: 'biz'}});
+                var objResult = schema1.validator('obj', {votes: 2, favs: 100, foo: {bar: 'biz'}, redundant: 'Redundant'});
 
                 assert.strictEqual(schema1.validator('str', '1').value, '1');
                 assert.strictEqual(schema1.validator('num', 1).value, 1);

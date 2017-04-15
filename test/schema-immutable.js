@@ -43,7 +43,7 @@ describe('Schema validator test immutable data', function () {
                 var anyObj = Map({foo: 'bar', bar: 'biz', age: 23});
                 var anyObjResult = schema1.validator('anyObj', anyObj, true);
 
-                var obj = fromJS({votes: 2, favs: 100, foo: {bar: 'biz'}});
+                var obj = fromJS({votes: 2, favs: 100, foo: {bar: 'biz'}, redundant: 'Redundant'});
                 var objResult = schema1.validator('obj', obj, true);
 
                 var strArr = List(['1', 'hello', 'world']);
@@ -56,7 +56,7 @@ describe('Schema validator test immutable data', function () {
                 assert.strictEqual(objArrResult.value, objArr);
                 assert.strictEqual(anyArrResult.value, anyArr);
                 assert.strictEqual(anyObjResult.value, anyObj);
-                assert.strictEqual(objResult.value, obj.set('votes', 2));
+                assert(Immutable.is(objResult.value, obj.delete('redundant')));
 
                 done();
             });

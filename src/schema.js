@@ -359,7 +359,7 @@ var objectValidator = function (value, dataType, path, isImmutable) {
     });
 
     if (isImmutable) {
-        value.forEach(function(_, item) {
+        value.forEach(function (_, item) {
             // If the key not in Schema, delete it
             if (!(item in dataType)) {
                 value = proxyDelete(value, item, true);

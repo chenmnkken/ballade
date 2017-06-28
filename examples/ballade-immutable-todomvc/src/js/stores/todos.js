@@ -20,8 +20,30 @@ const todoSchema = new Schema({
 });
 
 const todosSchema = new Schema({
-    todos: [todoSchema]
+    todos: [todoSchema],
+    todosCopy: {
+        id: {
+            $type: String,
+            $default: 1
+        },
+        complete: {
+            $type: Boolean,
+            $default: false
+        },
+        text: {
+            $type: String,
+            $default: "Ballade Getting Started"
+        }
+    }
 });
+
+const options = {
+    cache: {
+        todosCopy: {
+            id: 'id'
+        }
+    }
+};
 
 // Filter specific index from todos by id
 const getTodoId = ($todos, id) => {
@@ -37,7 +59,7 @@ const getTodoId = ($todos, id) => {
     return index;
 };
 
-const todosStore = dispatcher.createImmutableStore(todosSchema, {
+const todosStore = dispatcher.createImmutableStore(todosSchema, options, {
     [`${TODOS}/${constatns.CREATE}`]: (store, action) => {
         let $todos = store.get('todos');
 

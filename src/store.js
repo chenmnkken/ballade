@@ -76,7 +76,7 @@ var Store = function (schema, options, _Immutable) {
             }
 
             if (hasIdCache) {
-                self.cache[key].set(value, true);
+                self.cache[key].set(value, false, !!_Immutable);
             }
             else {
                 self.store[key] = value;

@@ -46,9 +46,9 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.0.2
+ * Ballade 1.0.3
  * author: chenmnkken@gmail.com
- * date: 2017-04-15
+ * date: 2017-06-28
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -62,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.0.1',
+    version: '1.0.3',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -1394,7 +1394,7 @@ var Store = function (schema, options, _Immutable) {
             }
 
             if (hasIdCache) {
-                self.cache[key].set(value, true);
+                self.cache[key].set(value, false, !!_Immutable);
             }
             else {
                 self.store[key] = value;

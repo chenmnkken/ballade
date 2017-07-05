@@ -420,7 +420,7 @@ exampleStore.publish('title', 'This is changed title');
 
 ### Ballade.bindStore(Component, store, callbacks)
 
-将 React 组件和 Store 进行绑定，使绑定的组件能响应 Store 的数据变化。
+将 React 组件和 Store 进行绑定，使绑定的组件能响应 Store 的数据变化，该方法会返回一个新的 `React Component`。
 
 * `Component` *React Component*
 * `store` *Store instance*
@@ -446,7 +446,12 @@ App = bindStore(App, todosStore, {
 
 * `Component` *React Component*
 
-`immutableDeepEqual` 方法会对 React 组件的 `shouldComponentUpdate` 方法进行优化，如果组件的 `props` 或 `state` 中有用到 Immutable 的数据，该方法只有在数据变化才会执行组件的 `render` 函数。
+`immutableDeepEqual` 方法会对 React 组件的 `shouldComponentUpdate` 方法进行优化，如果组件的 `props` 或 `state` 中有用到 Immutable 的数据，该方法只有在数据变化才会执行组件的 `render` 函数。该方法会返回一个新的 `React Component`。
+
+```
+var immutableDeepEqual = require('ballade').immutableDeepEqual;
+App = immutableDeepEqual(App);
+```
 
 仅在 `ballade.immutable.js` 的版本中才有的方法，详见 [http://stylechen.com/react-and-immutable.html](http://stylechen.com/react-and-immutable.html)。
 

@@ -427,7 +427,7 @@ exampleStore.publish('title', 'This is changed title');
 
 ### Ballade.bindStore(Component, store, callbacks)
 
-Bind Store for React Component, the binded Component has receive Store data changes.
+Bind Store for React Component, the binded Component has receive Store data changes. This method will return a new `React Component`.
 
 * `Component` *React Component*
 * `store` *Store instance*
@@ -455,7 +455,12 @@ And in this function, `this` pointing Component.
 
 * `Component` *React Component*
 
-`immutableDeepEqual` method will optimize `shouldComponentUpdate` of React Compoent. If the component `props` or `state` is Immutable data, only the data is real changed, then trigger `render` of component.
+`immutableDeepEqual` method will optimize `shouldComponentUpdate` of React Compoent. If the component `props` or `state` is Immutable data, only the data is real changed, then trigger `render` of component. This method will return a new `React Component`.
+
+```
+var immutableDeepEqual = require('ballade').immutableDeepEqual;
+App = immutableDeepEqual(App);
+```
 
 > **Notice:** The `immutableDeepEqual` method only definition in `ballade.immutable.js`.
 

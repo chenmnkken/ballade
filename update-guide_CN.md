@@ -10,17 +10,17 @@
 
 ```javascript
 var exampleStore1 = dispatcher.createMutableStore(schema, callbacks);
-console.log(typeof exampleStore1.mutable.set === 'fcunction'); // true
-console.log(typeof exampleStore1.mutable.get === 'fcunction'); // true
-console.log(typeof exampleStore1.mutable.delete === 'fcunction'); // true
+console.log(typeof exampleStore1.mutable.set === 'function'); // true
+console.log(typeof exampleStore1.mutable.get === 'function'); // true
+console.log(typeof exampleStore1.mutable.delete === 'function'); // true
 
 var exampleStore2 = dispatcher.createImmutableStore(schema, callbacks);
 console.log(exampleStore1.immutable instanceof Immutable);          // true
-console.log(typeof exampleStore1.immutable.set === 'fcunction');    // true
-console.log(typeof exampleStore1.immutable.setIn === 'fcunction');  // true
-console.log(typeof exampleStore1.immutable.get === 'fcunction');    // true
-console.log(typeof exampleStore1.immutable.getIn === 'fcunction');  // true
-console.log(typeof exampleStore1.immutable.delete === 'fcunction'); // true
+console.log(typeof exampleStore1.immutable.set === 'function');    // true
+console.log(typeof exampleStore1.immutable.setIn === 'function');  // true
+console.log(typeof exampleStore1.immutable.get === 'function');    // true
+console.log(typeof exampleStore1.immutable.getIn === 'function');  // true
+console.log(typeof exampleStore1.immutable.delete === 'function'); // true
 ```
 
 **1.0**
@@ -53,18 +53,18 @@ console.log(typeof exampleStore2.delete === 'function'); // true
 
 ```js
 var exampleStore1 = dispatcher.createMutableStore(schema, callbacks);
-console.log(typeof exampleStore1.event.publish === 'fcunction'); // true
-console.log(typeof exampleStore1.event.subscribe === 'fcunction'); // true
-console.log(typeof exampleStore1.event.unsubscribe === 'fcunction'); // true
+console.log(typeof exampleStore1.event.publish === 'function'); // true
+console.log(typeof exampleStore1.event.subscribe === 'function'); // true
+console.log(typeof exampleStore1.event.unsubscribe === 'function'); // true
 ```
 
 **1.0**
 
 ```js
 var exampleStore1 = dispatcher.createMutableStore(schema, callbacks);
-console.log(typeof exampleStore1.publish === 'fcunction'); // true
-console.log(typeof exampleStore1.subscribe === 'fcunction'); // true
-console.log(typeof exampleStore1.unsubscribe === 'fcunction'); // true
+console.log(typeof exampleStore1.publish === 'function'); // true
+console.log(typeof exampleStore1.subscribe === 'function'); // true
+console.log(typeof exampleStore1.unsubscribe === 'function'); // true
 ```
 
 **4. Store Callbacks 无需再有返回值**

@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.0.3
+ * Ballade 1.0.4
  * author: chenmnkken@gmail.com
- * date: 2017-06-28
+ * date: 2017-08-12
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.0.3',
+    version: '1.0.4',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -717,8 +717,6 @@ var typecast = function (path, value, dataType) {
     }
 
     try {
-        result.value = dataType[CONSTRUCTOR](value);
-
         if (dataType[TYPE] !== 'Date') {
             result.message = {
                 path: path,
@@ -726,6 +724,11 @@ var typecast = function (path, value, dataType) {
                 type: 'warning',
                 message: 'Expect type is ' + dataType[TYPE] + ', not ' + _typeof(value)
             };
+
+            result.value = dataType[CONSTRUCTOR](value);
+        }
+        else {
+            result.value = value;
         }
     }
     catch (ex) {
@@ -971,7 +974,7 @@ var objectValidator = function (value, dataType, path, isImmutable) {
     });
 
     if (isImmutable) {
-        value.forEach(function(_, item) {
+        value.forEach(function (_, item) {
             // If the key not in Schema, delete it
             if (!(item in dataType)) {
                 value = proxyDelete(value, item, true);

@@ -31,6 +31,7 @@ describe('Schema validator test mutable data', function () {
         describe('schema type common validator', function () {
             it('all of data should vaild', function (done) {
                 var date = new Date();
+                var dateStr = '2017-04-03T08:16:02.616Z';
                 var objArrResult = schema1.validator('objArr', [{name: 'Ballade', title: 'Ballade test'}]);
                 var anyArrResult = schema1.validator('anyArr', [1, '2', false, {name: 'Ballade', title: 'Ballade test'}]);
                 var anyObjResult = schema1.validator('anyObj', {foo: 'bar', bar: 'biz', age: 23});
@@ -40,6 +41,7 @@ describe('Schema validator test mutable data', function () {
                 assert.strictEqual(schema1.validator('num', 1).value, 1);
                 assert.strictEqual(schema1.validator('bol', false).value, false);
                 assert.strictEqual(schema1.validator('date', date).value, date);
+                assert.strictEqual(schema1.validator('date', dateStr).value.getTime(), new Date(dateStr).getTime());
 
                 assert.deepStrictEqual(schema1.validator('strArr', ['1', 'hello', 'world']).value, ['1', 'hello', 'world']);
                 assert.deepStrictEqual(schema1.validator('numArr', [3, 5, 7]).value, [3, 5, 7]);

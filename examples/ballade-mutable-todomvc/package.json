@@ -25,7 +25,7 @@
     "watchify": "3.7.0"
   },
   "dependencies": {
-    "ballade": "1.0.0",
+    "ballade": "^1.0.5",
     "object-assign": "4.1.0",
     "react": "15.4.2",
     "react-dom": "15.4.2"

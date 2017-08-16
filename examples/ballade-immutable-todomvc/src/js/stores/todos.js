@@ -16,18 +16,10 @@ const todoSchema = new Schema({
     text: {
         $type: String,
         $default: "Ballade Getting Started"
-    },
-    total: {
-        $type: Number,
-        $default: 0
     }
 });
 
 const todosSchema = new Schema({
-    total: {
-        $type: Number,
-        $default: 0
-    },
     todos: [todoSchema]
 });
 
@@ -116,8 +108,5 @@ const todosStore = dispatcher.createImmutableStore(todosSchema, {
         store.set('todos', $todos);
     }
 });
-
-console.log(todosStore.get('total'));
-console.log(todosStore.get('todos').getIn([0, 'total']));
 
 export default todosStore;

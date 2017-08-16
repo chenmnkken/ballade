@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.0.4
+ * Ballade 1.0.5
  * author: chenmnkken@gmail.com
- * date: 2017-08-12
+ * date: 2017-08-16
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.0.4',
+    version: '1.0.5',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -727,8 +727,9 @@ var typecast = function (path, value, dataType) {
 
             result.value = dataType[CONSTRUCTOR](value);
         }
+        // Date must add new
         else {
-            result.value = value;
+            result.value = new Date(value);
         }
     }
     catch (ex) {
@@ -1260,11 +1261,11 @@ var Store = function (schema, options, _Immutable) {
             value = persistence.get(cacheOptions[key].persistence.prefix + '.' + key, cacheOptions[key].persistence.type);
         }
 
-        if (!value) {
+        if (value === null || value === undefined) {
             value = defaultData[key];
         }
 
-        if (value) {
+        if (value !== null && value !== undefined) {
             if (_Immutable) {
                 value = outputImmutableData(value, _Immutable);
             }
@@ -1366,7 +1367,7 @@ Store.prototype.get = function (key, id) {
     var type;
 
     if (key in this.cache) {
-        if (id) {
+        if (id !== undefined) {
             result = this.cache[key].get(id, isImmutable);
         }
         else {

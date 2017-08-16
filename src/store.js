@@ -66,11 +66,11 @@ var Store = function (schema, options, _Immutable) {
             value = persistence.get(cacheOptions[key].persistence.prefix + '.' + key, cacheOptions[key].persistence.type);
         }
 
-        if (!value) {
+        if (value === null || value === undefined) {
             value = defaultData[key];
         }
 
-        if (value) {
+        if (value !== null && value !== undefined) {
             if (_Immutable) {
                 value = outputImmutableData(value, _Immutable);
             }
@@ -172,7 +172,7 @@ Store.prototype.get = function (key, id) {
     var type;
 
     if (key in this.cache) {
-        if (id) {
+        if (id !== undefined) {
             result = this.cache[key].get(id, isImmutable);
         }
         else {

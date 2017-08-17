@@ -114,7 +114,7 @@ Dispatcher 用于连接 Actions 和 Store 的「调度员」，负责将 Action 
 	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
 	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value)
+	* [store.set](#storesetkey-value-fresh-pureset)
 	* [store.get](#storegetkey-id)
 	* [store.delete](#storedeletekey-id)
 	* [store.subscribe](#storesubscribetype-handler)

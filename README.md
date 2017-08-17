@@ -117,7 +117,7 @@ When action is trigger, **Store** need a callback corresponding with action, use
 	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
 	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value)
+	* [store.set](#storesetkey-value-fresh-pureset)
 	* [store.get](#storegetkey-id)
 	* [store.delete](#storedeletekey-id)
 	* [store.subscribe](#storesubscribetype-handler)

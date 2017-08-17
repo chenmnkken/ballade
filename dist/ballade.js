@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.0.5
+ * Ballade 1.1.0
  * author: chenmnkken@gmail.com
- * date: 2017-08-16
+ * date: 2017-08-17
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.0.5',
+    version: '1.1.0',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -1295,9 +1295,10 @@ Store.prototype = Object.create(Event.prototype, {
  * @param {String} object key
  * @param {Any} data
  * @param {Boolean} whether update cache
+ * @param {Boolean} If pureSet is true, do not publish data change event.
  * @return {String} object key
  */
-Store.prototype.set = function (key, value, fresh) {
+Store.prototype.set = function (key, value, fresh, pureSet) {
     var options = this.options;
     var cacheOptions = options.cache;
     var isImmutable = this.Immutable && _typeof(value.toJS) === 'Function';
@@ -1349,7 +1350,10 @@ Store.prototype.set = function (key, value, fresh) {
             );
         }
 
-        this.publish(key, newValue);
+        if (!pureSet) {
+            this.publish(key, newValue);
+        }
+
         return key;
     }
 };

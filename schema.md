@@ -15,7 +15,7 @@ The design idea of Ballade Schema originates from [Mongoose Schema](http://mongo
 
 The core feature of Schema is definition data structure and type.
 
-```
+```js
 var Schema = require('ballade').Schema;
 
 var schema1 = new Schema({
@@ -44,7 +44,7 @@ var schema1 = new Schema({
 
 For above Schema instance, in actual storage, the data is should like the below.
 
-```
+```js
 {
     str: 'hello',
     num: 2,
@@ -87,7 +87,7 @@ Mixed is any type, when used Mixed, Schema should not any validation.
 
 Above example, can also use `$type`.
 
-```
+```js
 // simply
 new Schema({
 	str: String
@@ -105,7 +105,7 @@ What time is use `$type`? Ballade Schema also include others types validation, b
 
 For example, make sure stored string is lowercase letter.
 
-```
+```js
 new Schema({
 	str: {
 	    $type: String,
@@ -116,7 +116,7 @@ new Schema({
 
 If stored `str = 'Hello'`, the final result is `str: 'hello'`. Types validation can multiple simultaneous use. For below example, the vaule is lowercase letter and trimed.
 
-```
+```js
 new Schema({
 	str: {
 	    $type: String,
@@ -196,7 +196,7 @@ If data invaild, Schema try to convert base type, whether success or failure wil
 
 `warning` message:
 
-```
+```js
 // schema
 new Schema({
     str: String
@@ -209,7 +209,7 @@ new Schema({
 
 `error` message:
 
-```
+```js
 // schema
 new Schema({
     num: Number
@@ -228,7 +228,7 @@ The actual storage scenario is more complex, for complex scenario, Schema suppor
 
 Simply types definition for nested schema.
 
-```
+```js
 new Schema({
 	objArr: [{
 	    name: String,
@@ -239,7 +239,7 @@ new Schema({
 
 If want use auxiliary options for types validation, Schema must be nested.
 
-```
+```js
 var childSchema = new Schema({
     name: {
     	$type: String,
@@ -260,7 +260,7 @@ var parentSchema = new Schema({
 
 Ballade Schema also support immutable data validation. Immutable data validation same as mutable data, there is no difference.
 
-```
+```js
 // schema
 new Schema({
    foo: {

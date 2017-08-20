@@ -16,18 +16,24 @@ var Cache = function (options) {
     this.id = options.id;
     this.maxLength = options.maxLength || MAX_LENGTH;
     this.cacheStore = [];
+    this.idKeys = {};
 };
 
 Cache.prototype = {
-    set: function (value, fresh, isImmutable) {
+    set: function (value, isImmutable) {
         var idKey = this.id;
         var cacheStore = this.cacheStore;
         var length = cacheStore.length;
+        var idValue = proxyGet(value, idKey, isImmutable);
+
+        if (idValue === undefined) {
+            return;
+        }
 
         // update cache
-        if (fresh) {
+        if (this.idKeys[idValue]) {
             cacheStore.some(function (item, i) {
-                if (proxyGet(item, idKey, isImmutable) === proxyGet(value, idKey, isImmutable)) {
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
                     cacheStore[i] = value;
                     return true;
                 }
@@ -35,8 +41,12 @@ Cache.prototype = {
         }
         // push cache
         else {
+            this.idKeys[idValue] = true;
+
             // limit length
             if (length === this.maxLength) {
+                idValue = proxyGet(cacheStore[0], idKey, isImmutable);
+                delete this.idKeys[idValue];
                 cacheStore.shift();
             }
 
@@ -51,10 +61,12 @@ Cache.prototype = {
         var idValue = id;
         var item;
 
-        for (; i > -1; i--) {
-            item = cacheStore[i];
-            if (proxyGet(item, idKey, isImmutable) === idValue) {
-                return item;
+        if (this.idKeys[idValue]) {
+            for (; i > -1; i--) {
+                item = cacheStore[i];
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
+                    return item;
+                }
             }
         }
     },
@@ -66,11 +78,14 @@ Cache.prototype = {
         var idValue = id;
         var item;
 
-        for (; i > -1; i--) {
-            item = cacheStore[i];
-            if (proxyGet(item, idKey, isImmutable) === idValue) {
-                cacheStore.splice(i, 1);
-                break;
+        if (this.idKeys[idValue]) {
+            for (; i > -1; i--) {
+                item = cacheStore[i];
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
+                    cacheStore.splice(i, 1);
+                    delete this.idKeys[idValue];
+                    break;
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 /**
- * Ballade 1.1.0
+ * Ballade 1.2.0
  * author: chenmnkken@gmail.com
- * date: 2017-08-17
+ * date: 2017-08-20
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -13,7 +13,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.1.0',
+    version: '1.2.0',
     Schema: Schema,
     bindStore: bindStore
 };

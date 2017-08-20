@@ -46,9 +46,9 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.1.0
+ * Ballade 1.2.0
  * author: chenmnkken@gmail.com
- * date: 2017-08-17
+ * date: 2017-08-20
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -62,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.1.0',
+    version: '1.2.0',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -286,18 +286,24 @@ var Cache = function (options) {
     this.id = options.id;
     this.maxLength = options.maxLength || MAX_LENGTH;
     this.cacheStore = [];
+    this.idKeys = {};
 };
 
 Cache.prototype = {
-    set: function (value, fresh, isImmutable) {
+    set: function (value, isImmutable) {
         var idKey = this.id;
         var cacheStore = this.cacheStore;
         var length = cacheStore.length;
+        var idValue = proxyGet(value, idKey, isImmutable);
+
+        if (idValue === undefined) {
+            return;
+        }
 
         // update cache
-        if (fresh) {
+        if (this.idKeys[idValue]) {
             cacheStore.some(function (item, i) {
-                if (proxyGet(item, idKey, isImmutable) === proxyGet(value, idKey, isImmutable)) {
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
                     cacheStore[i] = value;
                     return true;
                 }
@@ -305,8 +311,12 @@ Cache.prototype = {
         }
         // push cache
         else {
+            this.idKeys[idValue] = true;
+
             // limit length
             if (length === this.maxLength) {
+                idValue = proxyGet(cacheStore[0], idKey, isImmutable);
+                delete this.idKeys[idValue];
                 cacheStore.shift();
             }
 
@@ -321,10 +331,12 @@ Cache.prototype = {
         var idValue = id;
         var item;
 
-        for (; i > -1; i--) {
-            item = cacheStore[i];
-            if (proxyGet(item, idKey, isImmutable) === idValue) {
-                return item;
+        if (this.idKeys[idValue]) {
+            for (; i > -1; i--) {
+                item = cacheStore[i];
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
+                    return item;
+                }
             }
         }
     },
@@ -336,11 +348,14 @@ Cache.prototype = {
         var idValue = id;
         var item;
 
-        for (; i > -1; i--) {
-            item = cacheStore[i];
-            if (proxyGet(item, idKey, isImmutable) === idValue) {
-                cacheStore.splice(i, 1);
-                break;
+        if (this.idKeys[idValue]) {
+            for (; i > -1; i--) {
+                item = cacheStore[i];
+                if (proxyGet(item, idKey, isImmutable) === idValue) {
+                    cacheStore.splice(i, 1);
+                    delete this.idKeys[idValue];
+                    break;
+                }
             }
         }
     }
@@ -619,7 +634,7 @@ var baseTypes = {
 };
 
 var persistence = {
-    set: function (key, value, type, isImmutable) {
+    set: function (key, value, type) {
         if (type !== 'localStorage' && type !== 'sessionStorage') {
             throw new Error('persistence params must be set localStorage or sessionStorage');
         }
@@ -631,10 +646,6 @@ var persistence = {
             value += '';
         }
         else {
-            if (isImmutable) {
-                value = value.toJS();
-            }
-
             value = JSON.stringify(value);
         }
 
@@ -1398,7 +1409,7 @@ var Store = function (schema, options, _Immutable) {
             }
 
             if (hasIdCache) {
-                self.cache[key].set(value, false, !!_Immutable);
+                self.cache[key].set(value, !!_Immutable);
             }
             else {
                 self.store[key] = value;
@@ -1421,11 +1432,10 @@ Store.prototype = Object.create(Event.prototype, {
  * If the key not in schema, set operation should failed.
  * @param {String} object key
  * @param {Any} data
- * @param {Boolean} whether update cache
  * @param {Boolean} If pureSet is true, do not publish data change event.
  * @return {String} object key
  */
-Store.prototype.set = function (key, value, fresh, pureSet) {
+Store.prototype.set = function (key, value, pureSet) {
     var options = this.options;
     var cacheOptions = options.cache;
     var isImmutable = this.Immutable && _typeof(value.toJS) === 'Function';
@@ -1462,7 +1472,7 @@ Store.prototype.set = function (key, value, fresh, pureSet) {
         }
 
         if (key in this.cache) {
-            this.cache[key].set(newValue, fresh, isImmutable);
+            this.cache[key].set(newValue, !!this.Immutable);
         }
         else {
             this.store[key] = newValue;
@@ -1472,8 +1482,7 @@ Store.prototype.set = function (key, value, fresh, pureSet) {
             persistence.set(
                 cacheOptions[key].persistence.prefix + '.' + key,
                 newValue,
-                cacheOptions[key].persistence.type,
-                isImmutable
+                cacheOptions[key].persistence.type
             );
         }
 

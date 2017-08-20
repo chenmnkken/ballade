@@ -29,6 +29,13 @@ var actions = dispatcher.createActions({
             type: 'immutable-test/add-user',
             user: user
         }
+    },
+
+    delUser: function (userId) {
+        return {
+            type: 'immutable-test/del-user',
+            userId: userId
+        }
     }
 });
 

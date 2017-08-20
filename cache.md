@@ -99,4 +99,3 @@ store.get('avatar'); => Output avatar persistence cache
 > **Notice:** When used Ballade storage data to `localStorage`, think about what time to clear the data, avoid persistence cache is limited.
 
 Of cause, persistence cache and common cache can simultaneous use.
-

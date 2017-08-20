@@ -114,7 +114,7 @@ Dispatcher 用于连接 Actions 和 Store 的「调度员」，负责将 Action 
 	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
 	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value-fresh-pureset)
+	* [store.set](#storesetkey-value-pureset)
 	* [store.get](#storegetkey-id)
 	* [store.delete](#storedeletekey-id)
 	* [store.subscribe](#storesubscribetype-handler)
@@ -324,10 +324,9 @@ var exampleStore = dispatcher.createImmutableStore(schema, {
 
 ---
 
-### store.set(key, value [,fresh] [,pureSet])
+### store.set(key, value [,pureSet])
   * `key` *String*
   * `value` *Anything*
-  * `fresh` *Boolean* *optional*
   * `pureSet` *Boolean* *optional*
 
 通过访问器来「写入」数据到 Store 中，如果数据的 `key` 没有在 Schema 中定义，操作会失败。
@@ -338,8 +337,6 @@ console.log(key) // => 'title'
 ```
 
 对于 mutable 的 Store 来说，可以存储 mutable 类型的数据。对于 immutable 类型的 Store 来说，无论是存储 mutable 还是 immutable，都会转化为 immutable 类型的数据，所有最终获取到的数据都是 immutable 类型的。
-
-`fresh` 用户在更新数据的同时更新缓存。
 
 如果数据写入 store 成功，同时还会触发数据变更的事件，如果将 `pureSet` 设置成 `false`，将不再触发数据变更的事件。
 

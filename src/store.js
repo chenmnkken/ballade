@@ -76,7 +76,7 @@ var Store = function (schema, options, _Immutable) {
             }
 
             if (hasIdCache) {
-                self.cache[key].set(value, false, !!_Immutable);
+                self.cache[key].set(value, !!_Immutable);
             }
             else {
                 self.store[key] = value;
@@ -99,11 +99,10 @@ Store.prototype = Object.create(Event.prototype, {
  * If the key not in schema, set operation should failed.
  * @param {String} object key
  * @param {Any} data
- * @param {Boolean} whether update cache
  * @param {Boolean} If pureSet is true, do not publish data change event.
  * @return {String} object key
  */
-Store.prototype.set = function (key, value, fresh, pureSet) {
+Store.prototype.set = function (key, value, pureSet) {
     var options = this.options;
     var cacheOptions = options.cache;
     var isImmutable = this.Immutable && _typeof(value.toJS) === 'Function';
@@ -140,7 +139,7 @@ Store.prototype.set = function (key, value, fresh, pureSet) {
         }
 
         if (key in this.cache) {
-            this.cache[key].set(newValue, fresh, isImmutable);
+            this.cache[key].set(newValue, !!this.Immutable);
         }
         else {
             this.store[key] = newValue;
@@ -150,8 +149,7 @@ Store.prototype.set = function (key, value, fresh, pureSet) {
             persistence.set(
                 cacheOptions[key].persistence.prefix + '.' + key,
                 newValue,
-                cacheOptions[key].persistence.type,
-                isImmutable
+                cacheOptions[key].persistence.type
             );
         }
 

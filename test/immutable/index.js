@@ -9,7 +9,7 @@ var store2 = require('./store2');
 
 describe('Ballade immutable test', function () {
     describe('actions 1', function () {
-        describe('upTitle action 1', function () {
+        describe('updateTitle action 1', function () {
             it('should return: [foo is done]', function (done) {
                 var firstUpdate = function (key) {
                     var title = store1.get('title');
@@ -24,7 +24,7 @@ describe('Ballade immutable test', function () {
             });
         });
 
-        describe('upTitle action 2', function () {
+        describe('updateTitle action 2', function () {
             it('should return: [bar is done]', function (done) {
                 var secondUpdate = function (key) {
                     var title = store1.get('title');
@@ -77,7 +77,7 @@ describe('Ballade immutable test', function () {
     });
 
     describe('actions 2', function () {
-        describe('upTitle action', function () {
+        describe('updateTitle action', function () {
             it('should return: [baz is done]', function (done) {
                 var firstUpdate = function (key) {
                     var title = store2.get('title');
@@ -143,8 +143,22 @@ describe('Ballade immutable test', function () {
         });
     });
 
+    describe('$default for store', function () {
+        it('should return $default value number 0', function (done) {
+            var count = store1.get('count');
+            assert.strictEqual(count, 0);
+            done();
+        });
+
+        it('should return $default value boolean false', function (done) {
+            var extended = store1.get('extended');
+            assert.strictEqual(extended, false);
+            done();
+        });
+    });
+
     describe('cache for store', function () {
-        it('should cache 10 users in store', function (done) {
+        it('should cache users in store', function (done) {
             var i = 0;
 
             for (; i < 12; i++) {
@@ -154,12 +168,20 @@ describe('Ballade immutable test', function () {
                 });
             }
 
+            actions1.addUser({
+                id: 11,
+                name: 'Xiaoming Li01'
+            });
+
             var users = store1.get('users');
-            var user = store1.get('users', 5);
+            var user5 = store1.get('users', 5);
 
             assert.strictEqual(users.length, 10);
-            assert.strictEqual(user.get('id'), 5);
-            assert.strictEqual(user.get('name'), 'Xiaoming Li06');
+            assert.strictEqual(user5.get('id'), 5);
+            assert.strictEqual(user5.get('name'), 'Xiaoming Li06');
+            assert.strictEqual(store1.get('users', 11).get('name'), 'Xiaoming Li01');
+            actions1.delUser(11);
+            assert.strictEqual(store1.get('users', 11), undefined);
             done();
         });
     });

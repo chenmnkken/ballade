@@ -12,7 +12,7 @@ var baseTypes = {
 };
 
 var persistence = {
-    set: function (key, value, type, isImmutable) {
+    set: function (key, value, type) {
         if (type !== 'localStorage' && type !== 'sessionStorage') {
             throw new Error('persistence params must be set localStorage or sessionStorage');
         }
@@ -24,10 +24,6 @@ var persistence = {
             value += '';
         }
         else {
-            if (isImmutable) {
-                value = value.toJS();
-            }
-
             value = JSON.stringify(value);
         }
 

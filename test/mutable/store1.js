@@ -15,6 +15,14 @@ var schema = new Schema({
     users: {
         id: Number,
         name: String
+    },
+    count: {
+        $type: Number,
+        $default: 0
+    },
+    extended: {
+        $type: Boolean,
+        $default: false
     }
 });
 
@@ -45,6 +53,10 @@ var store = dispatcher.createMutableStore(schema, options, {
 
     'mutable-test/add-user': function (store, action) {
         store.set('users', action.user);
+    },
+
+    'immutable-test/del-user': function (store, action) {
+        store.delete('users', action.userId);
     }
 });
 

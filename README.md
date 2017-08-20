@@ -117,7 +117,7 @@ When action is trigger, **Store** need a callback corresponding with action, use
 	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
 	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value-fresh-pureset)
+	* [store.set](#storesetkey-value-pureset)
 	* [store.get](#storegetkey-id)
 	* [store.delete](#storedeletekey-id)
 	* [store.subscribe](#storesubscribetype-handler)
@@ -329,10 +329,9 @@ Create an immutable Store, the params usage method same as `createMutableStore`.
 
 ---
 
-### store.set(key, value [,fresh] [,pureSet])
+### store.set(key, value [,pureSet])
   * `key` *String*  
   * `value` *Anything*
-  * `fresh` *Boolean* *optional*
   * `pureSet` *Boolean* *optional*
 
 Set data in store, if the key not definition in schema, the set operation should failed. This method will return key.
@@ -343,8 +342,6 @@ console.log(key) // => 'title'
 ```
 
 For mutable Store, support mutable data stored. For immutable Store, support mutable and immutable data stored, there will converted to immutable data, so get data from Store the type is immutable.
-
-`fresh` use to update cache, default is `false`.
 
 If store set data is success, at the same time the store publish data changed event, if `pureSet` is `true`, do not publish data change event, default is `false`.
 

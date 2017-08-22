@@ -338,7 +338,7 @@ console.log(key) // => 'title'
 
 对于 mutable 的 Store 来说，可以存储 mutable 类型的数据。对于 immutable 类型的 Store 来说，无论是存储 mutable 还是 immutable，都会转化为 immutable 类型的数据，所有最终获取到的数据都是 immutable 类型的。
 
-如果数据写入 store 成功，同时还会触发数据变更的事件，如果将 `pureSet` 设置成 `false`，将不再触发数据变更的事件。
+如果数据写入 store 成功，同时还会触发数据变更的事件，如果将 `pureSet` 设置成 `true`，将不再触发数据变更的事件，默认为 `false`。
 
 > **注意**：「写入」方法只能在 Store 的回调函数中使用。
 

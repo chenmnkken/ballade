@@ -11,10 +11,10 @@ Definition schema.
 ```
 var schema1 = new Schema({
     photo: {
-    	id: String,
-    	title: String,
-    	width: Number,
-    	height: Number
+        id: String,
+        title: String,
+        width: Number,
+        height: Number
     }
 });
 

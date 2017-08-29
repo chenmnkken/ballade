@@ -106,23 +106,23 @@ Dispatcher 用于连接 Actions 和 Store 的「调度员」，负责将 Action 
 ## API
 
 * Class
-	* [Ballade.Dispatcher](#balladedispatcher)
-	* [Ballade.Schema](#balladeschema)
+    * [Ballade.Dispatcher](#balladedispatcher)
+    * [Ballade.Schema](#balladeschema)
 * Dispatcher instance
-	* [dispatcher.use](#dispatcherusemiddleware)
-	* [dispatcher.createActions](#dispatchercreateactionsactioncreators)
-	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
-	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
+    * [dispatcher.use](#dispatcherusemiddleware)
+    * [dispatcher.createActions](#dispatchercreateactionsactioncreators)
+    * [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
+    * [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value-pureset)
-	* [store.get](#storegetkey-id)
-	* [store.delete](#storedeletekey-id)
-	* [store.subscribe](#storesubscribetype-handler)
-	* [store.unsubscribe](#storeunsubscribetype-handler)
-	* [store.publish](#storepublishtype-changedvalue)
+    * [store.set](#storesetkey-value-pureset)
+    * [store.get](#storegetkey-id)
+    * [store.delete](#storedeletekey-id)
+    * [store.subscribe](#storesubscribetype-handler)
+    * [store.unsubscribe](#storeunsubscribetype-handler)
+    * [store.publish](#storepublishtype-changedvalue)
 * Others
-	* [Ballade.binStore](#balladebindstorecomponent-store-callbacks)
-	* [Ballade.immutableDeepEqual](#balladeimmutabledeepequalcomponent)
+    * [Ballade.binStore](#balladebindstorecomponent-store-callbacks)
+    * [Ballade.immutableDeepEqual](#balladeimmutabledeepequalcomponent)
 
 ### Ballade.Dispatcher()
 
@@ -177,13 +177,13 @@ Schema 用于描述存储在 Store 中的数据结构，并对存储的数据进
 ```js
 dispatcher.use(function (payload, next) {
     // 修改 payload.count
-	if (count in payload) {
-	    payload.count++;
-	}
+    if (count in payload) {
+        payload.count++;
+    }
 
-	// 在中间件中，必须执行 next 函数，
-	// 这样才能将处理完的 payload 数据传递给下一个中间件
-	next();
+    // 在中间件中，必须执行 next 函数，
+    // 这样才能将处理完的 payload 数据传递给下一个中间件
+    next();
 });
 ```
 
@@ -192,20 +192,20 @@ dispatcher.use(function (payload, next) {
 ```js
 dispatcher.use(function (payload, next) {
     // 可以通过中间件中是否包含 uri 字段来判断是否使用 fetch 来取数据
-	if (payload.uri) {
-	    fetch(payload.uri, payload.options || {}).then(function(response){
-	        return response.json();
-	    })
-	    .then(function(response){
-	        payload.response = response;
-	        // 异步函数中的 next 回调
-	        next();
-	    });
-	}
-	// 如果不包含 uri 字段，则不作任何处理
-	else {
-	    next();
-	}
+    if (payload.uri) {
+        fetch(payload.uri, payload.options || {}).then(function(response){
+            return response.json();
+        })
+        .then(function(response){
+            payload.response = response;
+            // 异步函数中的 next 回调
+            next();
+        });
+    }
+    // 如果不包含 uri 字段，则不作任何处理
+    else {
+        next();
+    }
 });
 ```
 ---

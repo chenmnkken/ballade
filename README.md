@@ -109,23 +109,23 @@ When action is trigger, **Store** need a callback corresponding with action, use
 ## API
 
 * Class
-	* [Ballade.Dispatcher](#balladedispatcher)
-	* [Ballade.Schema](#balladeschema)
+    * [Ballade.Dispatcher](#balladedispatcher)
+    * [Ballade.Schema](#balladeschema)
 * Dispatcher instance
-	* [dispatcher.use](#dispatcherusemiddleware)
-	* [dispatcher.createActions](#dispatchercreateactionsactioncreators)
-	* [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
-	* [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
+    * [dispatcher.use](#dispatcherusemiddleware)
+    * [dispatcher.createActions](#dispatchercreateactionsactioncreators)
+    * [dispatcher.createMutableStore](#dispatchercreatemutablestoreschema-options-callbacks)
+    * [dispatcher.createImmutableStore](#dispatchercreateimmutablestoreschema-options-callbacks)
 * Store instance
-	* [store.set](#storesetkey-value-pureset)
-	* [store.get](#storegetkey-id)
-	* [store.delete](#storedeletekey-id)
-	* [store.subscribe](#storesubscribetype-handler)
-	* [store.unsubscribe](#storeunsubscribetype-handler)
-	* [store.publish](#storepublishtype-changedvalue)
+    * [store.set](#storesetkey-value-pureset)
+    * [store.get](#storegetkey-id)
+    * [store.delete](#storedeletekey-id)
+    * [store.subscribe](#storesubscribetype-handler)
+    * [store.unsubscribe](#storeunsubscribetype-handler)
+    * [store.publish](#storepublishtype-changedvalue)
 * Others
-	* [Ballade.binStore](#balladebindstorecomponent-store-callbacks)
-	* [Ballade.immutableDeepEqual](#balladeimmutabledeepequalcomponent)
+    * [Ballade.binStore](#balladebindstorecomponent-store-callbacks)
+    * [Ballade.immutableDeepEqual](#balladeimmutabledeepequalcomponent)
 
 ### Ballade.Dispatcher()
 
@@ -180,13 +180,13 @@ Register a middleware, all payload of Actions will through the middleware. Middl
 ```js
 dispatcher.use(function (payload, next) {
     // modify payload.count
-	if (count in payload) {
-	    payload.count++;
-	}
+    if (count in payload) {
+        payload.count++;
+    }
 
-	// must invoke next callback,
-	// payload through the callback transfer to next middleware
-	next();
+    // must invoke next callback,
+    // payload through the callback transfer to next middleware
+    next();
 });
 ```
 
@@ -195,20 +195,20 @@ If you need fetch data from server, you should register a middleware.
 ```js
 dispatcher.use(function (payload, next) {
     // payload whether include uri
-	if (payload.uri) {
-	    fetch(payload.uri, payload.options || {}).then(function(response){
-	        return response.json();
-	    })
-	    .then(function(response){
-	        payload.response = response;
-	        // next callback in a Asynchronous function
-	        next();
-	    });
-	}
-	// If not uri, just invoke next callback
-	else {
-	    next();
-	}
+    if (payload.uri) {
+        fetch(payload.uri, payload.options || {}).then(function(response){
+            return response.json();
+        })
+        .then(function(response){
+            payload.response = response;
+            // next callback in a Asynchronous function
+            next();
+        });
+    }
+    // If not uri, just invoke next callback
+    else {
+        next();
+    }
 });
 ```
 ---

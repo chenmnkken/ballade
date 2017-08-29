@@ -170,18 +170,23 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
         // basic schema type
         // data: String
         if (typeof data === 'function') {
+            if (data.name === 'Array' || data.name === 'Object') {
+                dataTypes[item][TYPE] = 'Mixed';
+                return;
+            }
+
             dataTypes[item][TYPE] = data.name;
             dataTypes[item][CONSTRUCTOR] = data;
         }
         // array schema type
         // data: [String]
         else if (Array.isArray(data)) {
-            dataTypes[item][CONTAINER] = 'Array';
             if (!data.length) {
                 dataTypes[item][TYPE] = 'Mixed';
                 return;
             }
 
+            dataTypes[item][CONTAINER] = 'Array';
             defaultData[item] = [];
             createDataTypes(data, dataTypes[item], defaultData[item]);
         }

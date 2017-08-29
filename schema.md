@@ -81,7 +81,11 @@ For above Schema instance, in actual storage, the data is should like the below.
 
 Array and Object both support nested.
 
-Mixed is any type, when used Mixed, Schema should not any validation.
+Mixed is any type, if the data is Mixed type, Schema should not any validation. Mixed not built-in constructor in JavaScript, therefore set data is Mixed, in fact set `Array` or `Object`, above schema1 example, `anyArr: []` and `anyObj: {}` the children is Mixed, `[]` and `{}` same as `Array` and `Object`.
+
+`anyArr: []` same as `anyArr: Array`.
+
+`anyObj: {}` same as `anyObj: Object`.
 
 ### Types Validation
 
@@ -90,14 +94,14 @@ Above example, can also use `$type`.
 ```js
 // simply
 new Schema({
-	str: String
+    str: String
 });
 
 // $type
 new Schema({
-	str: {
-	    $type: String
-	}
+    str: {
+        $type: String
+    }
 });
 ```
 
@@ -107,10 +111,10 @@ For example, make sure stored string is lowercase letter.
 
 ```js
 new Schema({
-	str: {
-	    $type: String,
-	    $lowercase: true   // configure the lowercase letter
-	}
+    str: {
+        $type: String,
+        $lowercase: true   // configure the lowercase letter
+    }
 });
 ```
 
@@ -118,11 +122,11 @@ If stored `str = 'Hello'`, the final result is `str: 'hello'`. Types validation 
 
 ```js
 new Schema({
-	str: {
-	    $type: String,
-	    $lowercase: true,  // configure the lowercase letter
-	    $trim: true        // configure the trim
-	}
+    str: {
+        $type: String,
+        $lowercase: true,  // configure the lowercase letter
+        $trim: true        // configure the trim
+    }
 });
 ```
 
@@ -130,15 +134,15 @@ Different data type have different types validation auxiliary options. There are
 
 **General Options**
 
-* `$required` *Boolean* 
+* `$required` *Boolean*
 
 Value is required.
 
-* `$default` *Any* 
+* `$default` *Any*
 
 Default value.
 
-* `$validate` *Function* 
+* `$validate` *Function*
 
 Custom validation function.
 
@@ -152,15 +156,15 @@ The value is converted to lowercase.
 
 The value is converted to uppercase.
 
-* `$trim` *Boolean* 
+* `$trim` *Boolean*
 
-The value is trimed. 
+The value is trimed.
 
-* `$match` *Regexp* 
+* `$match` *Regexp*
 
 Match the given regexp expression.
 
-* `$enum` *Array* 
+* `$enum` *Array*
 
 Match the list of conditions.
 
@@ -176,11 +180,11 @@ Cannot be greater than this value.
 
 **Date Options**
 
-* `$min` *Date* 
+* `$min` *Date*
 
 Cannot be less than this date value.
 
-* `$max` *Date* 
+* `$max` *Date*
 
 Cannot be greater than this value.
 
@@ -191,7 +195,7 @@ If data invaild, Schema try to convert base type, whether success or failure wil
 #### Conversion Message Types
 
 * `warning` Successful conversion will show `warning` type message, the storage can be normal.
- 
+
 * `error` Conversion is failed will show `error` type message, the storage is failed too.
 
 `warning` message:
@@ -230,10 +234,10 @@ Simply types definition for nested schema.
 
 ```js
 new Schema({
-	objArr: [{
-	    name: String,
-	    title: String
-	}]
+    objArr: [{
+        name: String,
+        title: String
+    }]
 });
 ```
 
@@ -242,17 +246,17 @@ If want use auxiliary options for types validation, Schema must be nested.
 ```js
 var childSchema = new Schema({
     name: {
-    	$type: String,
-    	$lowercase: true
+        $type: String,
+        $lowercase: true
     },
     title: {
-    	$type: String,
-    	$uppercase: true
+        $type: String,
+        $uppercase: true
     }
 });
 
 var parentSchema = new Schema({
-	objArr: [childSchema]  // Nested Schema
+    objArr: [childSchema]  // Nested Schema
 });
 ```
 

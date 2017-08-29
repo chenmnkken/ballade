@@ -69,6 +69,8 @@ var schema1 = new Schema({
 }
 ```
 
+#### Schema 的类型:
+
 Schema 支持如下类型的数据：
 
 * String
@@ -79,7 +81,13 @@ Schema 支持如下类型的数据：
 * Object
 * Mixed
 
-Array 和 Object 是支持嵌套的。Mixed 就是任意类型，使用 Mixed 类型时，Schema 将不作任何校验。
+Array 和 Object 是支持嵌套的。
+
+Mixed 就是任意类型，使用 Mixed 类型时，Schema 将不作任何校验。与其他类型不同，Mixed 并不是 JavaScript 内置的构造函数，因此要设置数据为 Mixed 类型，实际上就是设置 `Array` 或 `Object`. 像上面的 schema1 例子中，`anyArr: []` 和 `anyObj: {}` 的子元素就是 Mixed 类型，`[]` 和 `{}` 字面量的写法等同于 `Array` 和 `Object` 构造函数的写法。
+
+`anyArr: []` 等价于 `anyArr: Array`.
+
+`anyObj: {}` 等价于 `anyObj: Object`.
 
 ### 类型校验选项
 
@@ -88,14 +96,14 @@ Array 和 Object 是支持嵌套的。Mixed 就是任意类型，使用 Mixed �
 ```js
 // 简写
 new Schema({
-	str: String
+    str: String
 });
 
 // 使用 $type 字段
 new Schema({
-	str: {
-	    $type: String
-	}
+    str: {
+        $type: String
+    }
 });
 ```
 
@@ -105,10 +113,10 @@ new Schema({
 
 ```js
 new Schema({
-	str: {
-	    $type: String,
-	    $lowercase: true   // 设置存储时的字符串是小写的
-	}
+    str: {
+        $type: String,
+        $lowercase: true   // 设置存储时的字符串是小写的
+    }
 });
 ```
 
@@ -116,11 +124,11 @@ new Schema({
 
 ```js
 new Schema({
-	str: {
-	    $type: String,
-	    $lowercase: true,  // 设置存储时的字符串是小写的
-	    $trim: true        // 去掉首尾空格
-	}
+    str: {
+        $type: String,
+        $lowercase: true,  // 设置存储时的字符串是小写的
+        $trim: true        // 去掉首尾空格
+    }
 });
 ```
 
@@ -195,29 +203,29 @@ new Schema({
 
 ```js
 new Schema({
-	objArr: [{
-	    name: String,
-	    title: String
-	}]
+    objArr: [{
+        name: String,
+        title: String
+    }]
 });
 ```
 
-但是要对每个数据项中的对象的属性使用类型校验辅助选项时就必须要使用 Schema 嵌套了。 
+但是要对每个数据项中的对象的属性使用类型校验辅助选项时就必须要使用 Schema 嵌套了。
 
 ```js
 var childSchema = new Schema({
     name: {
-    	$type: String,
-    	$lowercase: true
+        $type: String,
+        $lowercase: true
     },
     title: {
-    	$type: String,
-    	$uppercase: true
+        $type: String,
+        $uppercase: true
     }
 });
 
 var parentSchema = new Schema({
-	objArr: [childSchema]  // 嵌套的 Schema
+    objArr: [childSchema]  // 嵌套的 Schema
 });
 ```
 

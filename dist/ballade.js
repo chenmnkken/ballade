@@ -44,7 +44,7 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.2.0
+ * Ballade 1.2.1
  * author: chenmnkken@gmail.com
  * date: 2017-08-20
  * url: https://github.com/chenmnkken/ballade
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.2.0',
+    version: '1.2.1',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -793,18 +793,23 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
         // basic schema type
         // data: String
         if (typeof data === 'function') {
+            if (data.name === 'Array' || data.name === 'Object') {
+                dataTypes[item][TYPE] = 'Mixed';
+                return;
+            }
+
             dataTypes[item][TYPE] = data.name;
             dataTypes[item][CONSTRUCTOR] = data;
         }
         // array schema type
         // data: [String]
         else if (Array.isArray(data)) {
-            dataTypes[item][CONTAINER] = 'Array';
             if (!data.length) {
                 dataTypes[item][TYPE] = 'Mixed';
                 return;
             }
 
+            dataTypes[item][CONTAINER] = 'Array';
             defaultData[item] = [];
             createDataTypes(data, dataTypes[item], defaultData[item]);
         }

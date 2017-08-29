@@ -1,7 +1,7 @@
 /**
  * Ballade 1.2.1
  * author: chenmnkken@gmail.com
- * date: 2017-08-20
+ * date: 2017-08-29
  * url: https://github.com/chenmnkken/ballade
  */
 

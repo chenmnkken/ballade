@@ -2,6 +2,7 @@
 
 // @TODO String hooks add email、url
 // @TODO Array unique
+// @TODO Mixed type distinguish Object and Array Container
 
 var accessor = require('./accessor');
 var proxySet = accessor.set;
@@ -295,10 +296,8 @@ var objectValidator = function (value, dataType, path, isImmutable) {
     var messages = [];
     var self = this;
     var schemaKeysLength = 0;
-    // var valueKeysLength = valueKeys.length;
     var valueKeys;
 
-    // Object.keys(value).forEach(function (item) {
     Object.keys(dataType).forEach(function (item) {
         // filter private property
         if (item.slice(0, 8) === '__schema') {
@@ -333,7 +332,7 @@ var objectValidator = function (value, dataType, path, isImmutable) {
             }
         }
         else {
-            if (itemValue !== undefined && _typeof(itemValue) !== itemDataType[TYPE]) {
+            if (itemValue !== undefined && itemDataType[TYPE] !== 'Mixed' && _typeof(itemValue) !== itemDataType[TYPE]) {
                 castResult = typecast(itemPath, itemValue, itemDataType);
 
                 if ('value' in castResult) {

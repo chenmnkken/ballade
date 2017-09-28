@@ -46,9 +46,9 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.2.1
+ * Ballade 1.2.2
  * author: chenmnkken@gmail.com
- * date: 2017-08-29
+ * date: 2017-09-28
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -62,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.2.1',
+    version: '1.2.2',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -234,33 +234,39 @@ module.exports = Ballade;
 var bindStore = function (Component, store, callbacks) {
     var originComponentDidMount = Component.prototype.componentDidMount;
     var originComponentWillUnmount = Component.prototype.componentWillUnmount;
-    var newCallbacks = {};
     var callbacksArr = Object.keys(callbacks);
 
-    Component.prototype.componentDidMount = function (args) {
-        var self = this;
+    if (callbacksArr.length) {
+        Component.prototype.componentDidMount = function (args) {
+            var self = this;
+            var newCallbacks = {};
 
-        callbacksArr.forEach(function (item) {
-            newCallbacks[item] = callbacks[item].bind(self);
-            store.subscribe(item, newCallbacks[item]);
-        });
+            callbacksArr.forEach(function (item) {
+                newCallbacks[item] = callbacks[item].bind(self);
+                store.subscribe(item, newCallbacks[item]);
+            });
 
-        if (typeof originComponentDidMount === 'function') {
-            originComponentDidMount.apply(self, args);
-        }
-    };
+            self.__storeCallback__ = newCallbacks;
 
-    Component.prototype.componentWillUnmount = function (args) {
-        var self = this;
+            if (typeof originComponentDidMount === 'function') {
+                originComponentDidMount.apply(self, args);
+            }
+        };
 
-        callbacksArr.forEach(function (item) {
-            store.unsubscribe(item, newCallbacks[item]);
-        });
+        Component.prototype.componentWillUnmount = function (args) {
+            var self = this;
 
-        if (typeof originComponentWillUnmount === 'function') {
-            originComponentWillUnmount.apply(self, args);
-        }
-    };
+            callbacksArr.forEach(function (item) {
+                store.unsubscribe(item, self.__storeCallback__[item]);
+            });
+
+            delete self.__storeCallback__;
+
+            if (typeof originComponentWillUnmount === 'function') {
+                originComponentWillUnmount.apply(self, args);
+            }
+        };
+    }
 
     return Component;
 };
@@ -752,6 +758,7 @@ module.exports = Queue;
 
 // @TODO String hooks add email、url
 // @TODO Array unique
+// @TODO Mixed type distinguish Object and Array Container
 
 var accessor = require('./accessor');
 var proxySet = accessor.set;
@@ -1045,10 +1052,8 @@ var objectValidator = function (value, dataType, path, isImmutable) {
     var messages = [];
     var self = this;
     var schemaKeysLength = 0;
-    // var valueKeysLength = valueKeys.length;
     var valueKeys;
 
-    // Object.keys(value).forEach(function (item) {
     Object.keys(dataType).forEach(function (item) {
         // filter private property
         if (item.slice(0, 8) === '__schema') {
@@ -1083,7 +1088,7 @@ var objectValidator = function (value, dataType, path, isImmutable) {
             }
         }
         else {
-            if (itemValue !== undefined && _typeof(itemValue) !== itemDataType[TYPE]) {
+            if (itemValue !== undefined && itemDataType[TYPE] !== 'Mixed' && _typeof(itemValue) !== itemDataType[TYPE]) {
                 castResult = typecast(itemPath, itemValue, itemDataType);
 
                 if ('value' in castResult) {

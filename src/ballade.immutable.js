@@ -1,5 +1,5 @@
 /**
- * Ballade 1.2.3
+ * Ballade 1.2.4
  * author: chenmnkken@gmail.com
  * date: 2017-10-11
  * url: https://github.com/chenmnkken/ballade
@@ -15,7 +15,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.2.3',
+    version: '1.2.4',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -163,6 +163,7 @@ Dispatcher.prototype = {
         var store = new ImmutableStore(schema, options);
 
         var proxyStore = {
+            id: store.id,
             get: store.get.bind(store),
             publish: store.publish.bind(store),
             subscribe: store.subscribe.bind(store),

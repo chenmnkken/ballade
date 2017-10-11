@@ -33,7 +33,11 @@ var bindStore = function (Component, store, callbacks) {
                 store.unsubscribe(item, self.__storeCallback__[store.id][item]);
             });
 
-            delete self.__storeCallback__;
+            delete self.__storeCallback__[store.id];
+
+            if (!Object.keys(self.__storeCallback__).length) {
+                delete self.__storeCallback__;
+            }
 
             if (typeof originComponentWillUnmount === 'function') {
                 originComponentWillUnmount.apply(self, args);

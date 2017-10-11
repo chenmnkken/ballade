@@ -51,6 +51,7 @@ var Store = function (schema, options, _Immutable) {
     this.schema = schema;
     this.Immutable = _Immutable;
     this.options = options;
+    this.id = 'BalladeStore-' + (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
 
     Object.keys(schema.dataTypes).forEach(function (key) {
         var hasCache = cacheOptions && key in cacheOptions;

@@ -10,12 +10,16 @@ var bindStore = function (Component, store, callbacks) {
             var self = this;
             var newCallbacks = {};
 
+            if (!self.__storeCallback__) {
+                self.__storeCallback__ = {};
+            }
+
             callbacksArr.forEach(function (item) {
                 newCallbacks[item] = callbacks[item].bind(self);
                 store.subscribe(item, newCallbacks[item]);
             });
 
-            self.__storeCallback__ = newCallbacks;
+            self.__storeCallback__[store.id] = newCallbacks;
 
             if (typeof originComponentDidMount === 'function') {
                 originComponentDidMount.apply(self, args);
@@ -26,7 +30,7 @@ var bindStore = function (Component, store, callbacks) {
             var self = this;
 
             callbacksArr.forEach(function (item) {
-                store.unsubscribe(item, self.__storeCallback__[item]);
+                store.unsubscribe(item, self.__storeCallback__[store.id][item]);
             });
 
             delete self.__storeCallback__;

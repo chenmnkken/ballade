@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.2.2
+ * Ballade 1.2.4
  * author: chenmnkken@gmail.com
- * date: 2017-09-28
+ * date: 2017-10-11
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.2.2',
+    version: '1.2.4',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -176,6 +176,7 @@ Dispatcher.prototype = {
         var store = new MutableStore(schema, options);
 
         var proxyStore = {
+            id: store.id,
             get: store.get.bind(store),
             publish: store.publish.bind(store),
             subscribe: store.subscribe.bind(store),
@@ -208,12 +209,16 @@ var bindStore = function (Component, store, callbacks) {
             var self = this;
             var newCallbacks = {};
 
+            if (!self.__storeCallback__) {
+                self.__storeCallback__ = {};
+            }
+
             callbacksArr.forEach(function (item) {
                 newCallbacks[item] = callbacks[item].bind(self);
                 store.subscribe(item, newCallbacks[item]);
             });
 
-            self.__storeCallback__ = newCallbacks;
+            self.__storeCallback__[store.id] = newCallbacks;
 
             if (typeof originComponentDidMount === 'function') {
                 originComponentDidMount.apply(self, args);
@@ -224,10 +229,14 @@ var bindStore = function (Component, store, callbacks) {
             var self = this;
 
             callbacksArr.forEach(function (item) {
-                store.unsubscribe(item, self.__storeCallback__[item]);
+                store.unsubscribe(item, self.__storeCallback__[store.id][item]);
             });
 
-            delete self.__storeCallback__;
+            delete self.__storeCallback__[store.id];
+
+            if (!Object.keys(self.__storeCallback__).length) {
+                delete self.__storeCallback__;
+            }
 
             if (typeof originComponentWillUnmount === 'function') {
                 originComponentWillUnmount.apply(self, args);
@@ -1267,6 +1276,7 @@ var Store = function (schema, options, _Immutable) {
     this.schema = schema;
     this.Immutable = _Immutable;
     this.options = options;
+    this.id = 'BalladeStore-' + (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
 
     Object.keys(schema.dataTypes).forEach(function (key) {
         var hasCache = cacheOptions && key in cacheOptions;

@@ -88,6 +88,16 @@ describe('Schema validator test mutable data', function () {
                 done();
             });
         });
+
+        describe('schema is Mixed', function () {
+            it('data type is Mixed, and default data is empty', function (done) {
+                assert.strictEqual(schema1.dataTypes.anyArr.__schemaType__, 'Mixed');
+                assert.strictEqual(schema1.dataTypes.anyObj.__schemaType__, 'Mixed');
+                assert.strictEqual(Array.isArray(schema1.defaultData.anyArr), true);
+                assert.strictEqual(Object.keys(schema1.defaultData.anyObj).length, 0);
+                done();
+            });
+        });
     });
 
     describe('schema options', function () {

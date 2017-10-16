@@ -46,7 +46,7 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.2.5
+ * Ballade 1.2.6
  * author: chenmnkken@gmail.com
  * date: 2017-10-16
  * url: https://github.com/chenmnkken/ballade
@@ -62,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.2.5',
+    version: '1.2.6',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -768,7 +768,6 @@ module.exports = Queue;
 
 // @TODO String hooks add email、url
 // @TODO Array unique
-// @TODO Mixed type distinguish Object and Array Container
 
 var accessor = require('./accessor');
 var proxySet = accessor.set;
@@ -939,6 +938,14 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
         if (typeof data === 'function') {
             if (data.name === 'Array' || data.name === 'Object') {
                 dataTypes[item][TYPE] = 'Mixed';
+
+                if (data.name === 'Array') {
+                    defaultData[item] = [];
+                }
+                else {
+                    defaultData[item] = {};
+                }
+
                 return;
             }
 
@@ -950,6 +957,7 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
         else if (Array.isArray(data)) {
             if (!data.length) {
                 dataTypes[item][TYPE] = 'Mixed';
+                defaultData[item] = [];
                 return;
             }
 
@@ -962,12 +970,21 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
         else if (_typeof(data) === 'Object') {
             if (!Object.keys(data).length) {
                 dataTypes[item][TYPE] = 'Mixed';
+                defaultData[item] = {};
                 return;
             }
 
             if (typeof data.$type === 'function') {
                 if (data.$type.name === 'Array' || data.$type.name === 'Object') {
                     dataTypes[item][TYPE] = 'Mixed';
+
+                    if (data.$type.name === 'Array') {
+                        defaultData[item] = [];
+                    }
+                    else {
+                        defaultData[item] = {};
+                    }
+
                     return;
                 }
 

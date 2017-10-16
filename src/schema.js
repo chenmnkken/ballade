@@ -200,6 +200,11 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
             }
 
             if (typeof data.$type === 'function') {
+                if (data.$type.name === 'Array' || data.$type.name === 'Object') {
+                    dataTypes[item][TYPE] = 'Mixed';
+                    return;
+                }
+
                 dataTypes[item][TYPE] = data.$type.name;
                 dataTypes[item][CONSTRUCTOR] = data.$type;
                 dataTypes[item][HOOK] = [];

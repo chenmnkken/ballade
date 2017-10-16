@@ -132,6 +132,8 @@ new Schema({
 
 Different data type have different types validation auxiliary options. There are also some options is general.
 
+Array and Object is not have validation auxiliary options, because Array and Object both is Mixed type, the Mixed type is not validation.
+
 **General Options**
 
 * `$required` *Boolean*

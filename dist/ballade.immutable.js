@@ -46,9 +46,9 @@ module.exports = accessor;
 
 },{}],3:[function(require,module,exports){
 /**
- * Ballade 1.2.4
+ * Ballade 1.2.5
  * author: chenmnkken@gmail.com
- * date: 2017-10-11
+ * date: 2017-10-16
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -62,7 +62,7 @@ var bindStore = require('./bindstore');
 var immutableDeepEqual = require('./immutable-deep-equal');
 
 var Ballade = {
-    version: '1.2.4',
+    version: '1.2.5',
     Schema: Schema,
     bindStore: bindStore,
     immutableDeepEqual: immutableDeepEqual
@@ -966,6 +966,11 @@ var createDataTypes = function (schemaData, dataTypes, defaultData) {
             }
 
             if (typeof data.$type === 'function') {
+                if (data.$type.name === 'Array' || data.$type.name === 'Object') {
+                    dataTypes[item][TYPE] = 'Mixed';
+                    return;
+                }
+
                 dataTypes[item][TYPE] = data.$type.name;
                 dataTypes[item][CONSTRUCTOR] = data.$type;
                 dataTypes[item][HOOK] = [];

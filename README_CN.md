@@ -380,6 +380,13 @@ console.log(store.get('title').foo) // => 'bar'
 
 ---
 
+### store.cleanCache(key)
+  * `key` *String*  
+
+从 Store 中清除缓存数据。
+
+---
+
 ### store.subscribe(type, handler)
   * `type` *String* *optional*
   * `handler` *Function*

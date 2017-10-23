@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.2.6
+ * Ballade 1.2.7
  * author: chenmnkken@gmail.com
- * date: 2017-10-11
+ * date: 2017-10-23
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.2.6',
+    version: '1.2.7',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -1467,6 +1467,25 @@ Store.prototype.delete = function (key, id) {
             cacheOptions[key].persistence.prefix + '.' + key,
             cacheOptions[key].persistence.type
         );
+    }
+
+    this.publish(key, this.get(key, id));
+    return key;
+};
+
+/**
+ * clean cache data
+ * @param {String} object key
+ * @return {String} object key
+ */
+Store.prototype.cleanCache = function (key) {
+    var cache = this.cache[key];
+
+    if (cache) {
+        cache.cacheStore.length = 0;
+        Object.keys(cache.idKeys).forEach(function (item) {
+            delete cache.idKeys[item];
+        });    
     }
 
     return key;

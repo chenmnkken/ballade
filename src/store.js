@@ -222,6 +222,25 @@ Store.prototype.delete = function (key, id) {
         );
     }
 
+    this.publish(key, this.get(key, id));
+    return key;
+};
+
+/**
+ * clean cache data
+ * @param {String} object key
+ * @return {String} object key
+ */
+Store.prototype.cleanCache = function (key) {
+    var cache = this.cache[key];
+
+    if (cache) {
+        cache.cacheStore.length = 0;
+        Object.keys(cache.idKeys).forEach(function (item) {
+            delete cache.idKeys[item];
+        });    
+    }
+
     return key;
 };
 

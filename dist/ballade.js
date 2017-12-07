@@ -44,9 +44,9 @@ module.exports = accessor;
 
 },{}],2:[function(require,module,exports){
 /**
- * Ballade 1.2.7
+ * Ballade 1.2.8
  * author: chenmnkken@gmail.com
- * date: 2017-10-23
+ * date: 2017-12-07
  * url: https://github.com/chenmnkken/ballade
  */
 
@@ -58,7 +58,7 @@ var MutableStore = require('./store');
 var bindStore = require('./bindstore');
 
 var Ballade = {
-    version: '1.2.7',
+    version: '1.2.8',
     Schema: Schema,
     bindStore: bindStore
 };
@@ -86,7 +86,9 @@ Dispatcher.prototype = {
             var callback = item.callbacks[payload.type];
 
             if (typeof callback === 'function') {
-                callback(item.store, payload);
+                setTimeout(function () {
+                    callback(item.store, payload);
+                }, 0);
             }
         });
     },

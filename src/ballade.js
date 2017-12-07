@@ -41,7 +41,9 @@ Dispatcher.prototype = {
             var callback = item.callbacks[payload.type];
 
             if (typeof callback === 'function') {
-                callback(item.store, payload);
+                setTimeout(function () {
+                    callback(item.store, payload);
+                }, 0);
             }
         });
     },

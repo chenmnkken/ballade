@@ -117,6 +117,7 @@ Dispatcher 用于连接 Actions 和 Store 的「调度员」，负责将 Action 
     * [store.set](#storesetkey-value-pureset)
     * [store.get](#storegetkey-id)
     * [store.delete](#storedeletekey-id)
+    * [store.cleanCache](#storecleancachekey)
     * [store.subscribe](#storesubscribetype-handler)
     * [store.unsubscribe](#storeunsubscribetype-handler)
     * [store.publish](#storepublishtype-changedvalue)
@@ -374,7 +375,7 @@ console.log(store.get('title').foo) // => 'bar'
   * `key` *String*  
   * `id` *String* *optional*
 
-从 Store 中删除数据。
+从 Store 中删除数据，如果该数据同时做了持久化缓存，则会同时删除持久化缓存中的数据。
 
 如果有指定设置缓存，在删除数据的时候需指定缓存 `id`。
 
@@ -383,7 +384,7 @@ console.log(store.get('title').foo) // => 'bar'
 ### store.cleanCache(key)
   * `key` *String*  
 
-从 Store 中清除缓存数据。
+从 Store 中清除缓存数据。不能用于删除 `sessionStorage` 和 `localStorage`。
 
 ---
 

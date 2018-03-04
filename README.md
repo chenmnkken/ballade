@@ -120,7 +120,7 @@ When action is trigger, **Store** need a callback corresponding with action, use
     * [store.set](#storesetkey-value-pureset)
     * [store.get](#storegetkey-id)
     * [store.delete](#storedeletekey-id)
-    * [store.cleanCache](##storecleancachekey)
+    * [store.cleanCache](#storecleancachekey)
     * [store.subscribe](#storesubscribetype-handler)
     * [store.unsubscribe](#storeunsubscribetype-handler)
     * [store.publish](#storepublishtype-changedvalue)
@@ -380,16 +380,16 @@ console.log(store.get('title').foo) // => 'bar'
   * `key` *String*  
   * `id` *String* *optional*
 
-Delete data from **Store**.
+Delete data from **Store**, if the key has configure persistence cache, also delete it.
 
-If the key has configure the cache, when delete data from Store should specify cache `id`.
+If the key has configure the cache, delete data from Store should specify cache `id`.
 
 ---
 
 ### store.cleanCache(key)
   * `key` *String*  
 
-Clean cache data from **Store**.
+Clean cache data from **Store**, can not uesed to delete persistence cache from `sessionStorage` and `localStorage`.
 
 ---
 

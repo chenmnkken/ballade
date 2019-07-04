@@ -464,7 +464,7 @@ var immutableDeepEqual = require('ballade').immutableDeepEqual;
 App = immutableDeepEqual(App);
 ```
 
-仅在 `ballade.immutable.js` 的版本中才有的方法，详见 [http://stylechen.com/react-and-immutable.html](http://stylechen.com/react-and-immutable.html)。
+仅在 `ballade.immutable.js` 的版本中才有的方法，详见 [https://blog.yiguochen.com/react-and-immutable.html](https://blog.yiguochen.com/react-and-immutable.html)。
 
 ## 你其实不需要 `waitFor`
 

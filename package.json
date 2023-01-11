@@ -30,10 +30,10 @@
     "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-standard": "2.1.1",
     "gulp": "3.9.0",
-    "gulp-eslint": "3.0.1",
+    "gulp-eslint": "6.0.0",
     "gulp-uglify": "1.5.1",
     "immutable": "3.7.6",
-    "mocha": "2.3.4",
+    "mocha": "10.2.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0"
   }
